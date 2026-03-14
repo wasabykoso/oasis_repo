@@ -12,6 +12,12 @@ DIRECTORY = "."
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
+    
+    def do_GET(self):
+        # Перенаправление / на splash.html
+        if self.path == '/':
+            self.path = '/splash.html'
+        return super().do_GET()
 
 if __name__ == "__main__":
     os.chdir(DIRECTORY)

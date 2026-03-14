@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OASIC | Врата в пепел</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:wght@300;400;600;700&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --fire-orange: #ff6b35;
+            --fire-red: #c41e3a;
+            --fire-gold: #ffd700;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* ===== ОСНОВНОЙ ЗАГРУЗОЧНЫЙ ЭКРАН ===== */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 30% 40%, #1a0a0a 0%, #030101 100%);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .splash-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ===== АНИМАЦИЯ ПЕПЛА ===== */
+        .ash-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" opacity="0.1"><circle cx="30" cy="30" r="3" fill="%23aaaaaa"/><circle cx="80" cy="120" r="4" fill="%23999999"/><circle cx="150" cy="50" r="2" fill="%23bbbbbb"/><circle cx="45" cy="180" r="5" fill="%23888888"/><circle cx="170" cy="160" r="3" fill="%23aaaaaa"/><circle cx="110" cy="80" r="4" fill="%23999999"/></svg>') repeat;
+            animation: ashFall 40s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes ashFall {
+            0% { transform: translateY(-10%) rotate(0deg); opacity: 0.1; }
+            50% { opacity: 0.2; }
+            100% { transform: translateY(10%) rotate(5deg); opacity: 0.1; }
+        }
+
+        /* ===== ЦЕНТРАЛЬНЫЙ КРИСТАЛЛ/ПОРТАЛ ===== */
+        .portal-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        /* Вращающееся огненное кольцо */
+        .fire-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                transparent,
+                rgba(255, 107, 53, 0.2),
+                rgba(196, 30, 58, 0.4),
+                rgba(255, 215, 0, 0.3),
+                transparent
+            );
+            animation: rotateRing 8s linear infinite;
+            filter: blur(20px);
+        }
+
+        .fire-ring-2 {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 180deg,
+                transparent,
+                rgba(255, 69, 0, 0.3),
+                rgba(139, 0, 0, 0.5),
+                rgba(255, 140, 0, 0.3),
+                transparent
+            );
+            animation: rotateRingReverse 12s linear infinite;
+            filter: blur(30px);
+        }
+
+        @keyframes rotateRing {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes rotateRingReverse {
+            0% { transform: rotate(0deg) scale(0.9); }
+            50% { transform: rotate(-180deg) scale(1); }
+            100% { transform: rotate(-360deg) scale(0.9); }
+        }
+
+        /* Искры вокруг */
+        .spark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--fire-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--fire-orange), 0 0 40px var(--fire-red);
+            animation: sparkFloat 3s ease-in-out infinite;
+        }
+
+        .spark:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
+        .spark:nth-child(2) { top: 30%; right: 15%; animation-delay: 0.5s; }
+        .spark:nth-child(3) { bottom: 20%; left: 30%; animation-delay: 1s; }
+        .spark:nth-child(4) { bottom: 40%; right: 25%; animation-delay: 1.5s; }
+        .spark:nth-child(5) { top: 50%; left: 10%; animation-delay: 2s; }
+        .spark:nth-child(6) { bottom: 10%; right: 40%; animation-delay: 2.5s; }
+
+        @keyframes sparkFloat {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+            50% { transform: translateY(-20px) scale(1.5); opacity: 1; }
+        }
+
+        /* ===== ТЕКСТ ===== */
+        .title-container {
+            position: absolute;
+            text-align: center;
+            z-index: 20;
+            width: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .oasic-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(4rem, 15vw, 8rem);
+            font-weight: 900;
+            background: linear-gradient(
+                180deg,
+                #ffd700 0%,
+                #ff6b35 30%,
+                #c41e3a 70%,
+                #8b0000 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.5));
+            animation: titleGlow 3s ease-in-out infinite;
+            letter-spacing: 0.2em;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .oasic-title::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                180deg,
+                #ffd700 0%,
+                #ff6b35 30%,
+                #c41e3a 70%,
+                #8b0000 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: blur(20px);
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.5)); }
+            50% { filter: drop-shadow(0 0 60px rgba(255, 107, 53, 0.8)); }
+        }
+
+        .subtitle-splash {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+            letter-spacing: 0.3em;
+            animation: fadeInOut 4s ease-in-out infinite;
+            margin-top: 1rem;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* ===== ПРОГРЕСС БАР ===== */
+        .progress-wrapper {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            max-width: 80vw;
+            z-index: 30;
+        }
+
+        .progress-bg {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill-splash {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--fire-orange), var(--fire-gold), var(--fire-red));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            position: relative;
+            box-shadow: 0 0 20px var(--fire-orange);
+        }
+
+        .progress-fill-splash::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.5rem;
+            text-align: center;
+            letter-spacing: 0.2em;
+        }
+
+        .progress-percent {
+            color: var(--fire-gold);
+            font-weight: 600;
+        }
+
+        /* ===== СТАТУС ЗАГРУЗКИ ===== */
+        .loading-status {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            z-index: 30;
+            white-space: nowrap;
+        }
+
+        .loading-status span {
+            color: var(--fire-orange);
+            font-weight: 500;
+        }
+
+        /* ===== ПЕПЕЛЬНЫЙ ВИХРЬ ===== */
+        .ash-whirlwind {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .ash-particle {
+            position: absolute;
+            background: rgba(150, 150, 150, 0.3);
+            border-radius: 50%;
+            filter: blur(2px);
+            animation: ashWhirl 10s linear infinite;
+        }
+
+        @keyframes ashWhirl {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translate(var(--x), var(--y)) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* ===== ПЛАМЯ ПО КРАЯМ ===== */
+        .flame-edge {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(180deg, transparent, rgba(255, 69, 0, 0.1));
+            filter: blur(20px);
+            animation: flameFlicker 3s ease-in-out infinite;
+        }
+
+        .flame-edge.top {
+            top: 0;
+            background: linear-gradient(0deg, transparent, rgba(255, 69, 0, 0.1));
+        }
+
+        @keyframes flameFlicker {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* ===== СЧЕТЧИК ===== */
+        .quote-splash {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 1rem;
+            white-space: nowrap;
+            z-index: 20;
+            animation: quotePulse 5s ease-in-out infinite;
+        }
+
+        @keyframes quotePulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ===== ПЕРЕХОД ===== */
+        .transition-overlay-splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 20000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+
+        .transition-overlay-splash.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .transition-particle-splash {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--fire-orange);
+            border-radius: 50%;
+            filter: blur(1px);
+            box-shadow: 0 0 10px var(--fire-orange);
+            animation: particleFlySplash 1.5s ease-out forwards;
+        }
+
+        @keyframes particleFlySplash {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        .flame-burst {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, 
+                                      rgba(255, 107, 53, 0.3) 0%,
+                                      rgba(196, 30, 58, 0.2) 30%,
+                                      transparent 70%);
+            animation: flameBurst 1.5s ease-out forwards;
+        }
+
+        @keyframes flameBurst {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+
+        /* ===== МЕЛКИЕ ЭФФЕКТЫ ===== */
+        .glow-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 107, 53, 0.1) 0%, transparent 60%);
+            animation: glowPulse 5s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .progress-wrapper {
+                width: 300px;
+            }
+            
+            .quote-splash {
+                font-size: 0.8rem;
+                white-space: normal;
+                width: 90%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ЗАГРУЗОЧНЫЙ ЭКРАН -->
+    <div class="splash-screen" id="splashScreen">
+        <!-- Фоновые слои -->
+        <div class="ash-layer"></div>
+        <div class="glow-pulse"></div>
+        
+        <!-- Пламя по краям -->
+        <div class="flame-edge"></div>
+        <div class="flame-edge top"></div>
+        
+        <!-- Пепельный вихрь -->
+        <div class="ash-whirlwind" id="ashWhirlwind"></div>
+        
+        <!-- Центральный портал -->
+        <div class="portal-container">
+            <div class="fire-ring"></div>
+            <div class="fire-ring-2"></div>
+            
+            <!-- Искры -->
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            
+            <!-- Текст -->
+            <div class="title-container">
+                <h1 class="oasic-title" data-text="OASIC">OASIC</h1>
+                <div class="subtitle-splash">дорога из Теплиса</div>
+            </div>
+        </div>
+        
+        <!-- Прогресс бар -->
+        <div class="progress-wrapper">
+            <div class="progress-bg">
+                <div class="progress-fill-splash" id="splashProgress"></div>
+            </div>
+            <div class="progress-text">
+                <span id="splashPercent">0</span>% • <span id="splashItem">загрузка...</span>
+            </div>
+        </div>
+        
+        <!-- Статус -->
+        <div class="loading-status" id="loadingStatus">
+            <span>✦</span> воспламенение страниц <span>✦</span>
+        </div>
+        
+        <!-- Цитата -->
+        <div class="quote-splash">
+            "пепел не гаснет • он только ждет"
+        </div>
+    </div>
+
+    <!-- ПЕРЕХОД -->
+    <div class="transition-overlay-splash" id="transitionSplash"></div>
+
+    <script>
+        (function() {
+            // Элементы
+            const splashScreen = document.getElementById('splashScreen');
+            const splashProgress = document.getElementById('splashProgress');
+            const splashPercent = document.getElementById('splashPercent');
+            const splashItem = document.getElementById('splashItem');
+            const loadingStatus = document.getElementById('loadingStatus');
+            const transitionSplash = document.getElementById('transitionSplash');
+            const ashWhirlwind = document.getElementById('ashWhirlwind');
+
+            // Список ресурсов для предзагрузки
+            const resources = [
+                { name: 'шрифты', weight: 10 },
+                { name: 'текстуры', weight: 15 },
+                { name: 'глава 1', weight: 12 },
+                { name: 'глава 2', weight: 12 },
+                { name: 'глава 3', weight: 10 },
+                { name: 'глава 4', weight: 8 },
+                { name: 'глава 5', weight: 8 },
+                { name: 'глава 6', weight: 8 },
+                { name: 'глава 7', weight: 8 },
+                { name: 'глава 8', weight: 9 }
+            ];
+
+            // Создание пепельного вихря
+            function createAshWhirlwind() {
+                for (let i = 0; i < 30; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'ash-particle';
+                    
+                    const size = Math.random() * 10 + 5;
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    
+                    const startX = Math.random() * 100;
+                    const startY = Math.random() * 100;
+                    particle.style.left = startX + '%';
+                    particle.style.top = startY + '%';
+                    
+                    const tx = (Math.random() - 0.5) * 200;
+                    const ty = (Math.random() - 0.5) * 200 - 100;
+                    particle.style.setProperty('--x', tx + 'px');
+                    particle.style.setProperty('--y', ty + 'px');
+                    
+                    particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                    particle.style.animationDelay = Math.random() * 5 + 's';
+                    
+                    ashWhirlwind.appendChild(particle);
+                }
+            }
+
+            // Симуляция загрузки
+            function simulateLoading() {
+                let progress = 0;
+                let currentResource = 0;
+                const totalWeight = resources.reduce((acc, r) => acc + r.weight, 0);
+                
+                // Статусы загрузки
+                const statuses = [
+                    'разжигание пламени',
+                    'сбор пепла',
+                    'пробуждение тени',
+                    'калибровка тьмы',
+                    'воспламенение страниц',
+                    'призыв искр',
+                    'открытие врат'
+                ];
+                
+                let statusIndex = 0;
+                
+                const interval = setInterval(() => {
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        completeLoading();
+                        return;
+                    }
+                    
+                    // Увеличиваем прогресс
+                    const increment = Math.random() * 2 + 1;
+                    progress = Math.min(progress + increment, 100);
+                    
+                    // Обновляем UI
+                    splashProgress.style.width = progress + '%';
+                    splashPercent.textContent = Math.floor(progress);
+                    
+                    // Меняем название ресурса
+                    if (currentResource < resources.length) {
+                        const resourceProgress = (progress / 100) * totalWeight;
+                        let accumulatedWeight = 0;
+                        
+                        for (let i = 0; i < resources.length; i++) {
+                            accumulatedWeight += resources[i].weight;
+                            if (resourceProgress <= accumulatedWeight) {
+                                if (currentResource !== i) {
+                                    currentResource = i;
+                                    splashItem.textContent = resources[i].name;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Меняем статус каждые 15-20%
+                    if (Math.floor(progress) % 15 === 0 && Math.floor(progress) > 0) {
+                        const newIndex = Math.floor(progress / 15) % statuses.length;
+                        if (newIndex !== statusIndex) {
+                            statusIndex = newIndex;
+                            loadingStatus.innerHTML = `<span>✦</span> ${statuses[statusIndex]} <span>✦</span>`;
+                        }
+                    }
+                }, 100);
+            }
+
+            // Эпичный переход
+            function completeLoading() {
+                // Задержка перед переходом
+                setTimeout(() => {
+                    // Активируем переход
+                    transitionSplash.classList.add('active');
+                    
+                    // Создаем частицы
+                    const rect = splashScreen.getBoundingClientRect();
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    for (let i = 0; i < 60; i++) {
+                        setTimeout(() => {
+                            const particle = document.createElement('div');
+                            particle.className = 'transition-particle-splash';
+                            particle.style.left = centerX + 'px';
+                            particle.style.top = centerY + 'px';
+                            particle.style.setProperty('--tx', (Math.random() - 0.5) * 1500 + 'px');
+                            particle.style.setProperty('--ty', (Math.random() - 0.5) * 1500 + 'px');
+                            particle.style.animationDelay = (i * 0.02) + 's';
+                            transitionSplash.appendChild(particle);
+                            
+                            setTimeout(() => particle.remove(), 2000);
+                        }, i * 20);
+                    }
+                    
+                    // Взрыв пламени
+                    const flame = document.createElement('div');
+                    flame.className = 'flame-burst';
+                    transitionSplash.appendChild(flame);
+                    
+                    // Затухание загрузочного экрана
+                    setTimeout(() => {
+                        splashScreen.classList.add('fade-out');
+                    }, 500);
+                    
+                    // Переход на основную страницу
+                    setTimeout(() => {
+                        // Перенаправление на страницу книги
+                        window.location.href = 'oasis_book.html';
+                        
+                        // Очищаем переход
+                        setTimeout(() => {
+                            transitionSplash.classList.remove('active');
+                            transitionSplash.innerHTML = '';
+                        }, 1000);
+                    }, 2000);
+                    
+                }, 800);
+            }
+
+            // Инициализация
+            createAshWhirlwind();
+            simulateLoading();
+
+            // Предзагрузка изображений (если есть)
+            function preloadImages() {
+                const images = [];
+                
+                images.forEach(src => {
+                    const img = new Image();
+                    img.src = src;
+                });
+            }
+            
+            preloadImages();
+        })();
+    </script>
+</body>
+</html>
