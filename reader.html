@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OASIC: Потерянная душа | Читалка</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===== */
+        :root {
+            --fire-orange: #ff6b35;
+            --fire-red: #c41e3a;
+            --fire-gold: #ffd700;
+            --dark-bg: #0a0a0a;
+            --text-light: #f5f5f5;
+            --ember: #ff4500;
+            --text-gold: #d4af37;
+            --accent-orange: #cc5500;
+            --border-rust: #8b3a3a;
+            --paper-bg: #f4e4c1;
+            --paper-dark: #e8d8b5;
+            --ink: #2c1810;
+            --shadow: rgba(0, 0, 0, 0.5);
+            
+            /* Размеры книги */
+            --book-width: min(900px, 95vw);
+            --page-padding: clamp(1.5rem, 5vw, 4rem);
+            
+            /* Анимации */
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Шрифт */
+            --font-size: 18px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: var(--dark-bg);
+            color: var(--text-light);
+            overflow-x: hidden;
+            min-height: 100vh;
+            line-height: 1.8;
+            font-size: var(--font-size);
+        }
+
+        /* ===== ОГНЕННЫЙ ФОН ===== */
+        .fire-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, #1a0a0a 0%, #0a0502 100%);
+            z-index: -2;
+        }
+
+        .ember-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .ember {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--fire-orange);
+            border-radius: 50%;
+            filter: blur(1px);
+            box-shadow: 0 0 10px var(--fire-orange), 0 0 20px var(--fire-red);
+            animation: float-up linear infinite;
+        }
+
+        @keyframes float-up {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(0.5); opacity: 0; }
+        }
+
+        /* ===== ПРОГРЕСС БАР ===== */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--fire-orange), var(--fire-gold));
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--fire-orange);
+        }
+
+        /* ===== ПАНЕЛЬ УПРАВЛЕНИЯ ===== */
+        .control-panel {
+            position: fixed;
+            top: 4px;
+            left: 0;
+            right: 0;
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, rgba(10, 10, 10, 0.95) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+            z-index: 999;
+        }
+
+        .panel-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .home-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            color: var(--text-light);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .home-btn:hover {
+            border-color: var(--fire-orange);
+            color: var(--fire-orange);
+        }
+
+        .chapter-info {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .chapter-info strong {
+            color: var(--fire-gold);
+        }
+
+        .panel-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .font-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .font-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            color: var(--text-light);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .font-btn:hover {
+            background: rgba(255, 107, 53, 0.2);
+            border-color: var(--fire-orange);
+        }
+
+        .toc-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            color: var(--text-light);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .toc-btn:hover {
+            border-color: var(--fire-orange);
+            color: var(--fire-orange);
+        }
+
+        /* ===== КНИЖНАЯ СТРАНИЦА ===== */
+        .book-container {
+            min-height: 100vh;
+            padding: 6rem 1rem 4rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .book-page {
+            width: var(--book-width);
+            max-width: 900px;
+            background: linear-gradient(145deg, var(--paper-bg), var(--paper-dark));
+            color: var(--ink);
+            border-radius: 4px;
+            padding: var(--page-padding);
+            position: relative;
+            box-shadow: 
+                0 0 50px rgba(0, 0, 0, 0.5),
+                inset 0 0 100px rgba(139, 69, 19, 0.1);
+        }
+
+        /* Эффект обгоревших краев */
+        .book-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(90deg, rgba(139, 69, 19, 0.3) 0%, transparent 5%),
+                linear-gradient(270deg, rgba(139, 69, 19, 0.3) 0%, transparent 5%),
+                linear-gradient(180deg, rgba(139, 69, 19, 0.2) 0%, transparent 3%),
+                linear-gradient(0deg, rgba(139, 69, 19, 0.2) 0%, transparent 3%);
+            pointer-events: none;
+            border-radius: 4px;
+        }
+
+        /* Декоративные уголки */
+        .corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-color: var(--border-rust);
+            border-style: solid;
+            opacity: 0.4;
+        }
+
+        .corner-tl { top: 10px; left: 10px; border-width: 2px 0 0 2px; }
+        .corner-tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
+        .corner-bl { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; }
+        .corner-br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+
+        .book-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .chapter-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-orange);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: var(--ink);
+            margin-bottom: 2rem;
+            line-height: 1.3;
+        }
+
+        .chapter-content p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+            hyphens: auto;
+        }
+
+        .chapter-content .important {
+            color: var(--fire-red);
+            font-weight: 600;
+        }
+
+        .chapter-content .dialogue {
+            color: var(--accent-orange);
+            font-style: italic;
+            padding-left: 1rem;
+            border-left: 2px solid var(--border-rust);
+            margin: 1rem 0;
+        }
+
+        .chapter-content .epigraph {
+            font-style: italic;
+            color: #666;
+            text-align: center;
+            padding: 1rem 2rem;
+            border-top: 1px solid var(--border-rust);
+            border-bottom: 1px solid var(--border-rust);
+            margin: 2rem 0;
+        }
+
+        .chapter-content .action {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-gold);
+            padding: 1rem;
+        }
+
+        .chapter-content h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--ink);
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.3);
+        }
+
+        /* ===== НАВИГАЦИЯ ===== */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(139, 69, 19, 0.2);
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: var(--paper-dark);
+            border: 1px solid var(--border-rust);
+            border-radius: 4px;
+            color: var(--ink);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--paper-bg);
+            border-color: var(--fire-orange);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.prev {
+            margin-right: auto;
+        }
+
+        .nav-btn.next {
+            margin-left: auto;
+        }
+
+        /* ===== ОГЛАВЛЕНИЕ ===== */
+        .toc-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .toc-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .toc-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            max-width: 90vw;
+            height: 100%;
+            background: linear-gradient(180deg, #151515, #0a0a0a);
+            border-left: 1px solid var(--border-rust);
+            z-index: 1002;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .toc-panel.active {
+            right: 0;
+        }
+
+        .toc-header {
+            position: sticky;
+            top: 0;
+            padding: 1.5rem;
+            background: linear-gradient(180deg, #151515, #0a0a0a);
+            border-bottom: 1px solid var(--border-rust);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toc-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--fire-gold);
+        }
+
+        .toc-close {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .toc-close:hover {
+            color: var(--fire-orange);
+        }
+
+        .toc-list {
+            list-style: none;
+            padding: 1rem;
+        }
+
+        .toc-item {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .toc-item:hover {
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .toc-item.active {
+            background: rgba(255, 107, 53, 0.2);
+            border-left: 3px solid var(--fire-orange);
+        }
+
+        .toc-chapter {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.75rem;
+            color: var(--fire-orange);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .toc-chapter-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-top: 0.3rem;
+        }
+
+        /* ===== УВЕДОМЛЕНИЕ ===== */
+        .notification {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 1rem 2rem;
+            background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+            border: 1px solid var(--fire-orange);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* ===== АДАПТИВНОСТЬ ===== */
+        @media (max-width: 768px) {
+            .control-panel {
+                padding: 0.8rem 1rem;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .chapter-info {
+                display: none;
+            }
+
+            .book-page {
+                padding: 2rem 1.5rem;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Фон -->
+    <div class="fire-bg"></div>
+    <div class="ember-container" id="embers"></div>
+
+    <!-- Прогресс бар -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Панель управления -->
+    <div class="control-panel">
+        <div class="panel-left">
+            <a href="index.html" class="home-btn">← На главную</a>
+            <span class="chapter-info">Глава <strong id="currentChapterNum">1</strong> из <strong id="totalChapters">10</strong></span>
+        </div>
+        <div class="panel-right">
+            <div class="font-controls">
+                <button class="font-btn" onclick="changeFontSize(-2)" title="Уменьшить">A-</button>
+                <button class="font-btn" onclick="resetFontSize()" title="Сбросить">↺</button>
+                <button class="font-btn" onclick="changeFontSize(2)" title="Увеличить">A+</button>
+            </div>
+            <button class="toc-btn" onclick="toggleTOC()">Оглавление</button>
+        </div>
+    </div>
+
+    <!-- Книга -->
+    <div class="book-container">
+        <div class="book-page">
+            <!-- Уголки -->
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+
+            <div class="book-content" id="bookContent">
+                <!-- Контент загружается JavaScript -->
+            </div>
+
+            <!-- Навигация -->
+            <div class="nav-buttons">
+                <button class="nav-btn prev" id="prevBtn" onclick="prevChapter()">
+                    ← Предыдущая
+                </button>
+                <button class="nav-btn next" id="nextBtn" onclick="nextChapter()">
+                    Следующая →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Оглавление -->
+    <div class="toc-overlay" id="tocOverlay" onclick="toggleTOC()"></div>
+    <div class="toc-panel" id="tocPanel">
+        <div class="toc-header">
+            <h2 class="toc-title">Оглавление</h2>
+            <button class="toc-close" onclick="toggleTOC()">&times;</button>
+        </div>
+        <ul class="toc-list" id="tocList">
+            <!-- Заполняется JavaScript -->
+        </ul>
+    </div>
+
+    <!-- Уведомление -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // ========== ПОЛНЫЙ ТЕКСТ КНИГИ (ВСЕ ГЛАВЫ) ==========
+        const chapters = [
+    {
+        number: "Введение",
+        title: "Мир, который видел только тень",
+        content: `
+            <p>Oasic — мир, где можно стать кем угодно.</p>
+            <p>Но чаще всего ты становишься тем, кем тебя видят люди.</p>
+            <p>Главный герой — <span class="important">Рэй</span> — знал это лучше всех. Всю жизнь он был идеальным лавриком: согревал дома, улыбался соседям, чинил термо-лампы в мастерской отца. Он верил, что если играть по правилам, мир ответит тебе добром.</p>
+            <p class="important">Он ошибался.</p>
+            <p>Предательство лучшего друга. Холодный взгляд отца, видевшего в нем лишь пару рабочих рук. Равнодушие города, который годами пользовался его теплом, но отвернулся в трудную минуту.</p>
+            <p>По капле — день за днем — это <span class="important">убивало в нем доброту</span>.</p>
+            <p>Теперь в его груди тлел не огонь — <span class="important">только пепел</span>.</p>
+            <p>Но именно в этом пепле скрывалась <span class="important">невероятная сила</span>. Безмолвно, тайно, он стал сильнейшим волшебником Oasic. Тем, кто мог бы сжечь весь этот лживый мир дотла... если бы захотел.</p>
+            <p>Но он скрывал свою силу. Пока...</p>
+            <p>Пока в его жизни не появилась <span class="important">она</span> — девушка, которая увидела в нем не лаврика, не инструмент, а человека.</p>
+        `
+    },
+    {
+        number: "Глава 1",
+        title: "Последняя лампа",
+        content: `
+            <h3>1. Город, который забыл о благодарности</h3>
+            <p>Пар поднимался от мостовых Теплиса, окутывая улицу Пылающих Фонарей влажной дымкой. Рэй шел, не обращая внимания на знакомые вывески мастерских и пекарен. Его сапоги оставляли на теплых камнях едва заметные дымящиеся следы — побочный эффект дара, который он так ненавидел.</p>
+            <p class="dialogue">"Рэй! Подожди!"</p>
+            <p>Он обернулся. Маленькая девочка с обожженными пальцами — дочь пекаря — бежала за ним, сжимая в руках потухшую лампу.</p>
+            <p class="dialogue">"Она снова не работает... Папа говорит, без тепла хлеб не поднимется."</p>
+            <p>Рэй вздохнул, но взял лампу. Его пальцы автоматически нашли трещину на стекле.</p>
+            <p class="dialogue">"Видишь эту щель? Когда ты бежишь, масло вытекает."</p>
+            <p>Он провел пальцем по трещине, и стекло затянулось тонкой нитью расплавленного кварца. "Теперь попробуй."</p>
+            <p>Девочка щелкнула механизмом. Лампа вспыхнула ровным пламенем.</p>
+            <p class="dialogue">"Спасибо! Ты волшебник!"</p>
+            <p>Рэй усмехнулся. Если бы она знала...</p>
+            <p class="dialogue">"Эй, угольный мозг! Опять бесплатно работаешь?"</p>
+            <p>Голос Торина раздался из-за спины. Блаж сидел на низкой крыше, перебирая перья в своих иссиня-черных волосах.</p>
+            <p class="dialogue">"Это заняло две минуты," буркнул Рэй.</p>
+            <p class="dialogue">"Две минуты, пять минут, час... Сколько еще будешь тратить свой дар на этих дармоедов?"</p>
+            <p>Рэй резко развернулся к нему:</p>
+            <p class="dialogue">"Лучше на них, чем на воришек."</p>
+            <p>Торин поднял брови:</p>
+            <p class="dialogue">"Ой-ой, кто-то сегодня злой. Что, отец опять..."</p>
+            <p class="dialogue">"Заткнись."</p>
+            <p>Рэй сжал кулаки, чувствуя, как по коже побежали мурашки — предвестник вспышки гнева.</p>
+            <p>Торин отступил на шаг, но не замолчал:</p>
+            <p class="dialogue">"Я серьезно. Ты что, собираешься всю жизнь чинить их лампы? Когда у тебя..."</p>
+            <p class="dialogue">"Я сказал, заткнись!"</p>
+            <p>Рэй резко выдохнул, и из его рта вырвалось маленькое облачко пара. Камни под ногами на мгновение раскалились докрасна.</p>
+            <p>Торин замер. Его перья взъерошились.</p>
+            <p class="dialogue">"Черт... Ты становишься страшным, дружище."</p>
+            <p>Рэй уже открыл рот для очередной колкости, когда из-за угла послышался знакомый голос:</p>
+            <p class="dialogue">"Рэй! Где ты пропадаешь? Печь готова взорваться!"</p>
+            <p>Это был Гарт, подмастерье отца. Лицо его было испачкано сажей, а в руках он сжимал перекореженный металлический стержень.</p>
+            <p>Рэй закрыл глаза на секунду. Еще один день в Теплисе начинался.</p>
+            <h3>2. Работа, которая больше не грела душу</h3>
+            <p>Мастерская "Стальное Тепло" встретила Рэя привычным хаосом. Десяток подмастерий стучали молотами, двое раздували мехами печь, а в центре всего этого стоял Грей — его отец и самый строгий учитель в Теплисе.</p>
+            <p class="dialogue">"Ты опоздал на полчаса," бросил Грей, не отрываясь от наковальни, где он выковывал сложный механизм терморегулятора.</p>
+            <p class="dialogue">"Я..."</p>
+            <p class="dialogue">"Не оправдывайся. Печь нужно растопить к полудню, а сердечники для новых ламп еще не готовы."</p>
+            <p>Рэй молча кивнул и направился к своему рабочему месту. На столе лежала коробка с заготовками — двадцать идеальных металлических сфер, каждая размером с кулак.</p>
+            <p class="dialogue">"Проверь температуру перед закалкой," бросил отец через плечо. "В прошлый раз ты перекалил."</p>
+            <p>Рэй стиснул зубы. Он знал, что не перекаливал. Это был брак в металле, но Грей никогда не признавал своих ошибок.</p>
+            <p>Он взял первую сферу и опустил ее в печь. Металл начал менять цвет с серого на темно-красный.</p>
+            <p class="dialogue">"Ну и как дела у нашего маленького гения?" раздался насмешливый голос. Это был Вектор, старший подмастерье. "Опять собираешься спасать мир своими волшебными ручками?"</p>
+            <p>Рэй проигнорировал его. Он сосредоточился на металле, чувствуя, как тепло распространяется по заготовке. Еще немного... еще...</p>
+            <p class="dialogue">"Рэй!"</p>
+            <p>Голос отца заставил его вздрогнуть. Металл в его руках на мгновение вспыхнул синим.</p>
+            <p class="dialogue">"Ты что, оглох? Я уже третий раз зову тебя!"</p>
+            <p>Рэй резко вынул заготовку из печи. "Что?"</p>
+            <p class="dialogue">"Сердечник для Старейшины Гора. Он ждет."</p>
+            <p>Рэй кивнул и потянулся за специальным тиглем, где лежала почти готовая деталь. Но когда он взял ее, металл вдруг треснул у него в руках.</p>
+            <p>Гробовая тишина воцарилась в мастерской.</p>
+            <p class="dialogue">"Ты..." Грей медленно подошел ближе. "Ты сделал это специально."</p>
+            <p>Рэй посмотрел на треснувшую заготовку, затем на отца:</p>
+            <p class="dialogue">"Если бы я хотел ее сломать, она бы расплавилась."</p>
+            <p>Грей схватил его за руку:</p>
+            <p class="dialogue">"Ты думаешь, я не вижу? Эти вспышки? Эти... эти синие отблески? Ты теряешь контроль!"</p>
+            <p>Рэй вырвал руку:</p>
+            <p class="dialogue">"Я прекрасно контролирую свой дар!"</p>
+            <p class="dialogue">"Это не дар, сынок. Это проклятие." Грей отвернулся. "Переделай сердечник. И пусть на этот раз он будет идеальным."</p>
+            <h3>3. Дар, ставший проклятием</h3>
+            <p>Ночью, когда мастерская опустела, Рэй забрался на крышу. Отсюда, с высоты, Теплис выглядел почти красиво — сотни огоньков в окнах, мерцающие линии тепловых магистралей, уходящие к центральной термо-башне.</p>
+            <p>Он разжал ладонь. Маленькое пламя затанцевало у него на руке. Оранжевое... желтое... белое... синее.</p>
+            <p class="dialogue">"Сильнее," прошептал он.</p>
+            <p>Пламя взметнулось вверх, образовав миниатюрный огненный смерч. Рэй чувствовал, как энергия пульсирует в его жилах, как каждая клетка его тела наполняется мощью.</p>
+            <p class="dialogue">"Еще..."</p>
+            <p>Стекло на соседней крыше начало плавиться. Капли расплавленного кварца стекали вниз, как слезы.</p>
+            <p class="dialogue">"Рэй?"</p>
+            <p>Он резко сжал кулак. Огонь погас.</p>
+            <p>За ним стояла Лира, его младшая сестра. Ее глаза были широко раскрыты от страха.</p>
+            <p class="dialogue">"Что... что это было?"</p>
+            <p class="dialogue">"Ничего. Тебе показалось."</p>
+            <p class="dialogue">"Но я видела! Ты... ты..."</p>
+            <p>Рэй схватил ее за плечи:</p>
+            <p class="dialogue">"Ты ничего не видела. Поняла? Никто не должен знать."</p>
+            <p>Лира кивнула, дрожа. Рэй отпустил ее и отвернулся.</p>
+            <p class="dialogue">"Иди спать."</p>
+            <p>Когда шаги сестры затихли, он посмотрел на свои руки — обычные руки ремесленника, покрытые ожогами и шрамами. Никто бы не поверил, какая сила скрывалась за этой грубой кожей.</p>
+            <h3>4. Предательство, которое все изменило</h3>
+            <p class="dialogue">"Мне нужны чертежи."</p>
+            <p>Торин стоял перед ним, переминаясь с ноги на ногу. Они встретились у городской стены, в том самом месте, где когда-то, будучи детьми, делились мечтами.</p>
+            <p>Рэй сразу понял — что-то не так. Его друг выглядел нервным, а его перья, обычно гладкие и ухоженные, топорщились, будто он только что пережил удар током.</p>
+            <p class="dialogue">"Какие чертежи?" — спросил Рэй, хотя уже догадывался.</p>
+            <p class="dialogue">"Новых ламп. Тех, что твой отец разрабатывает для гильдии."</p>
+            <p>Холодная волна прокатилась по спине Рэя. Его дар всегда предупреждал о лжи — и сейчас он горел под кожей, как раскалённая проволока.</p>
+            <p class="dialogue">"Зачем тебе?"</p>
+            <p>Торин нервно провёл рукой по перьям, избегая взгляда.</p>
+            <p class="dialogue">"Для... для гильдии. Они хотят начать массовое производство."</p>
+            <p class="dialogue">"Врёшь."</p>
+            <p>Торин замер, затем резко выдохнул.</p>
+            <p class="dialogue">"Ладно! Ладно... Мне предложили хорошие деньги. Очень хорошие. Мы могли бы поделить."</p>
+            <p>Рэй почувствовал, как что-то внутри него надломилось.</p>
+            <p class="dialogue">"Ты хочешь, чтобы я украл у своего отца?"</p>
+            <p class="dialogue">"Он даже не поймёт, что они пропали! Ты же знаешь, как он завален работой. А мы... Мы могли бы уехать. Увидеть Мордвейн, Фейнвинд, может даже..."</p>
+            <p class="dialogue">"Продав изобретения, над которыми он работал годами?" — голос Рэя дрогнул.</p>
+            <p class="dialogue">"А он знает, сколько ты для него работаешь?! Он использует тебя, как последнего подмастерья, а ты..."</p>
+            <p>Рэй резко развернулся, чтобы уйти.</p>
+            <p>Но Торин вдруг схватил его за руку.</p>
+            <p class="dialogue">"Если не согласен — ладно. Но если проболтаешься... Я позабочусь, чтобы все думали, что это ты их украл."</p>
+            <p>Рэй вздрогнул.</p>
+            <p>Он резко вырвал руку, глаза вспыхнули синим.</p>
+            <p class="dialogue">"Ты прав... Отец использует меня. Но ты... ты хуже."</p>
+            <p>Торин отступил на шаг, но ухмыльнулся.</p>
+            <p class="dialogue">"Посмотрим, кто из нас хуже."</p>
+            <p>И исчез в переулке, оставив Рэя стоять с тяжёлым предчувствием в груди.</p>
+            <h3>5. Клеймо вора</h3>
+            <p>Через три дня всё рухнуло.</p>
+            <p>Чертежи пропали.</p>
+            <p>А на столе в мастерской отца нашли перо — одно из тех, что Рэй всегда носил в кармане, на память о дружбе с Торином.</p>
+            <p class="dialogue">"Ты..." — Грей стоял перед ним, лицо искажено яростью. — "Ты украл их?"</p>
+            <p class="dialogue">"Нет!" — Рэй попятился. — "Это Торин, он..."</p>
+            <p class="dialogue">"ХВАТИТ МНЕ ВРАТЬ!" — отец ударил кулаком по столу, и металл прогнулся. — "Гильдия уже знает! Они говорят, что видели, как ты пробирался в архив! Торин предупреждал их, что ты что-то замышляешь!"</p>
+            <p>Рэя будто ударило током.</p>
+            <p>Торин... подставил его.</p>
+            <p>Город узнал мгновенно.</p>
+            <p>К вечеру соседи отворачивались, когда он проходил мимо. Клиенты отца отказывались от его услуг. Даже старик Гора, который всегда угощал его сладкими кореньями, захлопнул дверь перед носом.</p>
+            <p>Только Лира, его младшая сестра, не верила этим слухам.</p>
+            <p class="dialogue">"Я знаю, что ты не мог этого сделать," — прошептала она, цепляясь за его руку.</p>
+            <p>Но даже её вера не спасла его.</p>
+            <p>На следующее утро на двери их дома появилось клеймо — чёрная метка вора.</p>
+            <p>А Торин улыбался, проходя мимо, с новым знаком гильдии на груди.</p>
+            <h3>6. Последняя ночь в Теплисе</h3>
+            <p>Рэй стоял на крыше, глядя на город, который предал его.</p>
+            <p>Его руки дрожали.</p>
+            <p>Не от страха.</p>
+            <p>От ярости.</p>
+            <p>Он мог.</p>
+            <p>Мог спуститься вниз и сжечь мастерские гильдии. Мог найти Торина и стереть его в пепел. Мог заставить всех них понять, что они ошибались...</p>
+            <p>Но тогда он стал бы тем, в кого они уже поверили.</p>
+            <p>Монстром.</p>
+            <p class="dialogue">"Рэй..."</p>
+            <p>Лира стояла в дверях, её глаза блестели в темноте.</p>
+            <p class="dialogue">"Ты уходишь?"</p>
+            <p>Он не ответил.</p>
+            <p>Но она поняла.</p>
+            <p class="dialogue">"Я... я попробую всё объяснить. Когда-нибудь..."</p>
+            <p>Рэй обнял её — крепко, как в детстве.</p>
+            <p class="dialogue">"Не надо. Пусть думают, что хотят."</p>
+            <p>И когда она ушла, он взглянул на Теплис в последний раз.</p>
+            <p>На город, который предпочёл поверить лжи.</p>
+            <p>На людей, которые отвернулись.</p>
+            <p>На жизнь, которую у него украли.</p>
+            <p class="important">И шагнул за ворота. Не оглянувшись.</p>
+        `
+    },
+    {
+        number: "Глава 2",
+        title: "Пробуждение Тени",
+        content: `
+            <h3>5. За пределами Кольца</h3>
+            <p>Рэй шел уже три дня.</p>
+            <p>Теплис растворился в мареве за спиной, будто его и не было. Город-паразит, город-предатель. Отец называл его «последним оплотом цивилизации», но Рэй знал правду – это гниющая плоть на костях прошлого.</p>
+            <p>Пепельные пустоши встретили его шепотом мертвых трав. Они крошились под сапогами, оставляя на коже ожоги, похожие на следы чьих-то пальцев. Воздух был густым, словно вдыхал не кислород, а пепел давно сгоревших миров.</p>
+            <p>На четвертый день небо почернело.</p>
+            <p>Не от туч – от пустоты. Звезды здесь не светили, будто кто-то вырвал их с корнем. Рэй остановился, впервые за долгие часы подняв голову. Его лавричья кровь, та самая, что позволяла ему чувствовать ток магии в жилах земли, теперь глухо стучала в висках, словно предупреждая: «Беги».</p>
+            <p>Но бежать было некуда.</p>
+            <p>Впереди, изломанный, как позвоночник великана, из пепла восстал вход в пещеру.</p>
+            <h3>6. Пещера</h3>
+            <p>Голод загнал его под землю.</p>
+            <p>Припасы кончились еще на рассвете, а последняя фляга воды испарилась буквально на глазах, стоило ему ступить на мертвую черту.</p>
+            <p>Пещера зияла во тьме, как открытый рот. Камни у входа были покрыты странными шрамами – будто кто-то провел по ним раскаленным ножом.</p>
+            <p>Первое предупреждение.</p>
+            <p>Рэй вошел.</p>
+            <p>Тьма сомкнулась за его спиной мгновенно, словно кто-то намеренно отрезал путь назад. Воздух внутри был тяжелым, насыщенным чем-то древним. Он обжигал легкие, но не огнем – холодом, тем самым, что живет между звезд.</p>
+            <p>Второе предупреждение.</p>
+            <p>Его ладони заныли.</p>
+            <p>Лаврики чувствовали магию кожей. У Рэя же кость под большими пальцами всегда трескалась, когда рядом было что-то... неправильное.</p>
+            <p>Сейчас она кровоточила.</p>
+            <h3>7. Гримуар</h3>
+            <p>Он нашел его в глубине пещеры, там, где стены пульсировали, словно живые.</p>
+            <p>Книга лежала на каменном алтаре, обвитая цепями из черного металла. Но самое странное – цепи шевелились.</p>
+            <p>Рэй протянул руку.</p>
+            <p class="dialogue">– Не трогай.</p>
+            <p>Голос пришел изнутри, будто кто-то прорычал прямо в его череп.</p>
+            <p>Но он уже не мог остановиться.</p>
+            <p>Пальцы коснулись переплета.</p>
+            <p>С его души был содран его внутренний ограничитель, который сдерживал его силу с самого рождения.</p>
+            <p class="important">Что-то щёлкнуло внутри – как будто гигантский механизм, десятилетиями сдерживавший бурю, вдруг сломался.</p>
+            <p class="important">И тьма зашевелилась.</p>
+            <p>Не вокруг.</p>
+            <p class="important">В нём.</p>
+            <h3>8. Видение</h3>
+            <p>Он падал.</p>
+            <p>Не вниз – наружу, за пределы всего, что знал.</p>
+            <p>Перед ним проносились: города, построенные из криков; реки, чья вода была гуще крови; солнце, разорванное на части, как тряпка.</p>
+            <p>А потом – Оно.</p>
+            <p>Существо, слишком огромное, чтобы иметь форму, и слишком древнее, чтобы иметь имя. Оно не смотрело на него – оно впитывало, как впитывают свет черные дыры.</p>
+            <p class="dialogue">– Ты всего лишь дыра в мире.</p>
+            <p>Голос принадлежал ему самому, но звучал так, будто миллионы людей сказали это одновременно.</p>
+            <p>Рэй закричал.</p>
+            <p>Он был в ужасе.</p>
+            <h3>9. Пробуждение</h3>
+            <p>Он очнулся в луже собственной крови.</p>
+            <p>Он вспомнил её.</p>
+            <p>Свою, подаренную богами силу, которую его вынуждало подавлять общество.</p>
+            <p>Гримуар лежал у него на груди, и теперь Рэй видел – книга была связана из кожи. Человеческой.</p>
+            <p>На обложке зиял рот, полный желтых, кривых зубов.</p>
+            <p class="dialogue">– Голодный пламень сильнее сытого,</p>
+            <p>– прошептал гримуар его же голосом.</p>
+            <p>Рэй вскрикнул и отшвырнул его.</p>
+            <p>Но книга не упала. Она зависла в воздухе, страницы раскрылись сами, обнажая текст, написанный кровью.</p>
+            <p>Первое заклинание:</p>
+            <p class="epigraph">«Возьми то, что не дано. Укради дыхание у ветра. Выпей свет у солнца.»</p>
+            <p>Рэй прочитал.</p>
+            <h3>10. Первая жертва</h3>
+            <p>Пепельная лиса замерла у входа в пещеру.</p>
+            <p>Ее глаза – две черные бусины – следили за ним.</p>
+            <p>Рэй поднял руку.</p>
+            <p>Он просто захотел, чтобы её дыхание принадлежало ему.</p>
+            <p>И мир повиновался.</p>
+            <p>Воздух в её лёгких застыл, затем потянулся к нему тонкой синей нитью. Животное не закричало – оно рассыпалось, как подточенный временем камень.</p>
+            <p>Но это было не поглощение.</p>
+            <p>Это было возвращение.</p>
+            <p class="important">"Это... всегда было моим"</p>
+            <p>Гравитация согнулась вокруг его пальцев, и камень у его ног взлетел в воздух, повинуясь мимолётной мысли.</p>
+            <p>А Рэй...</p>
+            <p>Он чувствовал.</p>
+            <p>Тепло лилось в его жилы, сладкое, как вино. Его лавричья кровь бурлила, впитывая жизнь, которую он украл.</p>
+            <p class="dialogue">– Это...</p>
+            <p>Он рассмеялся.</p>
+            <p class="dialogue">– Это просто.</p>
+            <h3>11. Неприкосновенность</h3>
+            <p>Охотники нашли его через месяц.</p>
+            <p>Пятеро. Двое лавриков, трое блажей. Один из них уже убивал тёмных – на его поясе болтались засохшие пальцы с синими ногтями.</p>
+            <p class="dialogue">– Ты нарушил Кодекс, – сказал старший, поднимая обсидиановый клинок.</p>
+            <p>Рэй не стал уклоняться.</p>
+            <p>Клинок должен был раскроить ему грудь.</p>
+            <p>Но лезвие остановилось в сантиметре от кожи, задрожало – и растворилось в пыль.</p>
+            <p class="dialogue">– Вы не можете меня даже тронуть, ваши атаки абсолютно бесполезны, проваливайте!!, – сказал Рэй спокойно.</p>
+            <p>Их заклинания гасли, не долетев. Их оружие крошилось. Даже земля под ними отказывалась слушаться.</p>
+            <p>Рэй не стал убивать их.</p>
+            <p>Он отпустил.</p>
+            <h3>12. Скрижали Адского Ядра</h3>
+            <p>Они ждали его в самом сердце пещеры.</p>
+            <p>Три каменных плиты, покрытых письменами, которые двигались, когда он отводил взгляд.</p>
+            <p class="dialogue">– Они говорят на языке теней, – шепнул гримуар.</p>
+            <p>Рэй коснулся первой плиты.</p>
+            <p>Боль.</p>
+            <p>Она пронзила его, как тысяча игл, вонзающихся прямо в мозг.</p>
+            <p>Но он не отдернул руку.</p>
+            <p class="dialogue">"Покажи мне."</p>
+            <p>Плита взвыла.</p>
+            <p>И знание хлынуло в него.</p>
+            <h3>13. Жизнь и Смерть на Кончиках Пальцев</h3>
+            <p>Он экспериментировал.</p>
+            <p>Мёртвый цветок в его руках вдруг выпрямлялся, лепестки наполнялись цветом.</p>
+            <p>Разрушение давалось легче.</p>
+            <p>Прикосновение – и камень рассыпался в песок. Взмах руки – и дерево превращалось в труху.</p>
+            <p>Но самое странное...</p>
+            <p>Он не чувствовал себя монстром.</p>
+            <p>Когда он вернул слетевшую с крыши гнезда птицу – она клюнула его в палец, и он рассмеялся.</p>
+            <p class="action">"Я всё ещё человек?"</p>
+            <p>Гримуар на поясе хихикнул.</p>
+            <h3>14. Голос, Который Остался</h3>
+            <p>Тьма в нём росла.</p>
+            <p>Но глубоко внутри, под слоями холодной ярости, что-то шевелилось.</p>
+            <p class="dialogue">"Ты мог бы убить их всех, – шептал голос (его собственный, но каким он был в шестнадцать, до изгнания).</p>
+            <p class="dialogue">"Мог бы, – соглашался Рэй, глядя, как Теплис вдалеке мерцает тусклыми огнями.</p>
+            <p class="dialogue">"Но не сделал этого."</p>
+            <p class="dialogue">"Пока что."</p>
+            <p>Голос умолкал, но не исчезал.</p>
+            <p>И это было важно.</p>
+        `
+    },
+    {
+        number: "Глава 3",
+        title: "Тень и Кровь",
+        content: `
+            <h3>15. Первое Превращение</h3>
+            <p>Рэй проснулся от жжения под кожей.</p>
+            <p>Он лежал в развалинах древнего храма. Тела охотников уже растворились.</p>
+            <p>Но теперь его тело горело.</p>
+            <p>Фиолетовые линии расходились от груди к конечностям, как трещины в стекле. Они пульсировали в такт его сердцу.</p>
+            <p class="dialogue">"Наконец-то. Ты начинаешь видеть."</p>
+            <p>Рэй встал, и земля под ним почернела.</p>
+            <p>Он поднёс руку к лицу.</p>
+            <p>Кожа стала серой.</p>
+            <p>Не бледной — пепельной, словно его плоть запомнила, как гореть.</p>
+            <h3>16. Нимб Изгнанника</h3>
+            <p>Боль ударила в лоб.</p>
+            <p>Рэй вскрикнул, схватившись за голову.</p>
+            <p>Что-то прорвалось.</p>
+            <p>Из его висков, из глазниц вырвался чёрный свет — не тьма, а её противоположность, нечто, пожирающее сам воздух.</p>
+            <p>Над головой завис нимб.</p>
+            <p>Чёрное кольцо, тонкое, как лезвие. Оно не светилось — оно вырезало куски реальности.</p>
+            <p class="dialogue">"Ангелы носят венцы из света..." — прошептал в голове его старый голос.</p>
+            <p class="dialogue">"А падшие — из пепла", — ответил гримуар.</p>
+            <p>Нимб вращался, и с каждым оборотом Рэй чувствовал —</p>
+            <p>Он больше не человек.</p>
+            <p>Но ещё и не демон.</p>
+            <p>Что-то посередине.</p>
+            <h3>17. Крылья Из Дыма</h3>
+            <p>Они выросли внезапно.</p>
+            <p>Не из спины — из тени под ногами.</p>
+            <p>Чёрные, как смола, но текучие, как дым. Они не подчинялись ему — жили своей жизнью.</p>
+            <p>Один взмах — и храм рухнул.</p>
+            <p>Второй — и земля вскрылась, обнажив коридоры древних катакомб.</p>
+            <p>Но крылья кровоточили.</p>
+            <p class="dialogue">"Контролируй их", — прошипел гримуар.</p>
+            <p class="dialogue">"Как?!"</p>
+            <p class="dialogue">"Перестань бояться."</p>
+            <p>Рэй сжал кулаки — и крылья застыли, превратившись в два огромных клинка из сгущённой тьмы.</p>
+            <p>Теперь они слушались.</p>
+            <h3>18. Меч, Который Не Должен Существовать</h3>
+            <p>Он пришёл сам.</p>
+            <p>Когда Рэй впервые захотел убить — не в ярости, а холодно, осознанно — в его руке материализовался клинок.</p>
+            <p>Слишком длинный.</p>
+            <p>Слишком острый.</p>
+            <p>Выкованный не из металла, а из ненависти.</p>
+            <p>Первый удар — и охотник рассыпался.</p>
+            <p>Не умер — исчез, будто его стерли из реальности.</p>
+            <p>Меч урчал, довольный.</p>
+            <p class="dialogue">"Он питается твоей злостью", — пояснил гримуар.</p>
+            <p class="dialogue">"Значит, он никогда не будет голодным", — ответил Рэй.</p>
+            <h3>19. Отражение в Луже</h3>
+            <p>После битвы он увидел себя.</p>
+            <p>В луже стоял не человек.</p>
+            <p>Лицо — наполовину скрыто тенью, но глаза...</p>
+            <p>Глаза горели.</p>
+            <p>Красные.</p>
+            <p>Ярче, чем кровь, ярче, чем пламя.</p>
+            <p class="dialogue">"Я всё ещё... я?"</p>
+            <p>Голос внутри не ответил.</p>
+            <p class="dialogue">"Ты — больше, чем 'я'. Ты — то, чего они боялись."</p>
+            <h3>20. Она</h3>
+            <p>Она пришла ночью.</p>
+            <p>Когда Рэй сжег последний оплот гильдии охотников, он почувствовал взгляд.</p>
+            <p>Не страх.</p>
+            <p>Не ненависть.</p>
+            <p>Интерес.</p>
+            <p>Девушка стояла на скале, её красно-черные волосы развевались на ветру, а в руках — книга, похожая на его гримуар, но с золотыми цепями.</p>
+            <p class="dialogue">"Ты и есть Рэй?"</p>
+            <p>Он не ответил.</p>
+            <p class="dialogue">"Меня зовут Марта. Я... исследователь. Теней."</p>
+            <p>Рэй засмеялся.</p>
+            <p class="dialogue">"Ты пришла изучить монстра?"</p>
+            <p>Она покачала головой.</p>
+            <p class="dialogue">"Я пришла узнать, почему монстр до сих пор не сжёг тот город."</p>
+            <p>И тогда он понял —</p>
+            <p>Она видит.</p>
+            <p>Не его силу.</p>
+            <p>Его выбор.</p>
+            <h3>21. Разговор у Костра</h3>
+            <p class="dialogue">"Ты мог убить их всех", — сказала Марта.</p>
+            <p class="dialogue">"Мог", — согласился Рэй.</p>
+            <p class="dialogue">"Но не сделал."</p>
+            <p class="dialogue">"Пока что."</p>
+            <p>Она посмотрела на него. Её глаза мерцали, как самые яркие звёзды вселенной.</p>
+            <p class="dialogue">"Ты боишься себя."</p>
+            <p>Рэй сжал кулаки.</p>
+            <p class="dialogue">"Я уничтожил отряд гильдии за два взгляда."</p>
+            <p class="dialogue">"И всё равно сдерживаешься."</p>
+            <p>Он вскочил, и костёр погас — не от ветра, а от его ярости.</p>
+            <p class="dialogue">"ЧТО ТЫ ХОЧЕШЬ?!"</p>
+            <p>Марта не испугалась.</p>
+            <p class="dialogue">"Показать тебе другой путь."</p>
+            <p class="dialogue">"Какой?"</p>
+            <p>Она коснулась его груди — там, где билось сердце.</p>
+            <p class="dialogue">"Тот, где ты не монстр. Тот, где ты спаситель."</p>
+            <p>Рэй рассмеялся.</p>
+            <p>Но впервые за долгое время...</p>
+            <p>Это не звучало как ложь.</p>
+            <p class="important">Конец Главы 3</p>
+        `
+    },
+    {
+        number: "Глава 4",
+        title: "Край Пекла",
+        content: `
+            <h3>22. Вид с Терминальной Башни</h3>
+            <p>Рэй стоял на вершине Шпиля Разлома — последнего острия Фейнвинда, вонзившегося в багровое небо.</p>
+            <p>Ветер здесь был не просто ветром — он скрипел, как старый механизм, и пах ржавчиной и пеплом.</p>
+            <p>Внизу, в чаду алхимических испарений, копошился город.</p>
+            <p>Фейнвинд.</p>
+            <p>Когда-то его называли "Жемчужиной Разума". Теперь он напоминал разлагающийся труп, облепленный гибридами.</p>
+            <p>Марта стояла рядом, её красно-черные волосы колыхались, словно дым.</p>
+            <p class="dialogue">"— Ты чувствуешь это?"</p>
+            <p>Рэй не ответил.</p>
+            <p>Он чувствовал слишком много.</p>
+            <p>И что-то ещё...</p>
+            <p>Тьму, которая шевелилась под землёй, как спящий зверь.</p>
+            <p class="dialogue">"— Теперь весь мир стоит на краю, — прошептал он.</p>
+            <p>Марта вздрогнула.</p>
+            <p class="dialogue">"— Кредо Падших..."</p>
+            <p>Рэй не слушал. Его глаза горели синим огнём.</p>
+            <p class="dialogue">"— Все эти либералы, интеллектуалы, сладкоголосые болтуны. И отчего-то вдруг никто не знает, что сказать."</p>
+            <p>Тишина.</p>
+            <p>Потом — рёв.</p>
+            <p>Из глубины руин вырвался звук, такой громкий, что стекла в окнах Шпиля треснули.</p>
+            <p>Марта схватила его за руку.</p>
+            <p class="dialogue">"Пошли."</p>
+            <p>Её пальцы впились в его запястье — тёплые, живые, настоящие.</p>
+            <p>И это единственное, что ещё держало его здесь.</p>
+            <h3>23. Осколок Света в Царстве Тьмы</h3>
+            <p>Они спустились сквозь Нижние Террасы.</p>
+            <p>Рэй шёл впереди. Его нимб, чернее самой темной ночи, рассекал пространство перед ними.</p>
+            <p>И вдруг...</p>
+            <p>Тишина.</p>
+            <p>Не просто отсутствие звука. Живая тишина.</p>
+            <p>На обломке колонны сидела девочка.</p>
+            <p>Ее платье, когда-то белое, теперь походило на пергаментный свиток.</p>
+            <p>И улыбка...</p>
+            <p>Не та натянутая гримаса, что бывает у детей на портретах. А настоящая.</p>
+            <p class="dialogue">"Ты страшный," - сказала она, и в ее голосе не было страха. Только любопытство.</p>
+            <p>Рэй замер.</p>
+            <p class="dialogue">"Уходи," - прошептал он.</p>
+            <p>Девочка рассмеялась.</p>
+            <p class="dialogue">"Улыбки - они как бабочки," - вдруг сказала Марта.</p>
+            <p>Рэй почувствовал, как что-то в нем откликается на эти слова.</p>
+            <p>Девочка спрыгнула с колонны. Она подбежала к Рэю и коснулась его нимба.</p>
+            <p class="dialogue">"Солнце скоро взойдет," - прошептала она. И растворилась в утреннем тумане.</p>
+            <p>Рэй стоял, ощущая, как что-то в его окаменевшем сердце трещит и оживает.</p>
+            <p class="action">По его щекам проступили слёзы...</p>
+            <p class="dialogue">"Иногда," - сказала Марта, - "самые важные вещи невозможно удержать. Их можно только почувствовать."</p>
+        `
+    },
+    {
+        number: "Глава 5",
+        title: "Встреча с Солнечным Безумцем",
+        content: `
+            <h3>24. Дорога в Эльдривар</h3>
+            <p>Покинув Фейнвинд, они шли три дня через Поля Молчания — бескрайнюю равнину, где трава росла черной и ломкой.</p>
+            <p>Марта шла чуть впереди, её черно-красные волосы развевались на ветру.</p>
+            <p>На третий день они увидели город.</p>
+            <p>Эльдривар — последнее пристанище перед Гнилыми Землями.</p>
+            <p>Он стоял на холме, окружённый ржавой стеной из обломков машин и костей.</p>
+            <p class="dialogue">"— Здесь есть таверна, — сказала Марта. — "Кривой Котёл".</p>
+            <p>Рэй кивнул. Его тени уже тянулись к городу.</p>
+            <h3>25. Таверна "Кривой котёл"</h3>
+            <p>Внутри пахло перегоревшим эфиром, квашеными грибами и чем-то сладковато-гнилым.</p>
+            <p>Стены были покрыты граффити — странными символами, которые шевелились.</p>
+            <p class="dialogue">"— Две комнаты,"</p>
+            <p>Бармен усмехнулся, его стеклянный глаз прокрутился, осматривая Рэя.</p>
+            <p class="dialogue">"— Для такого — двойная цена."</p>
+            <p>Рэй сжал кулаки, но Марта положила руку ему на плечо.</p>
+            <p class="dialogue">"— Не стоит."</p>
+            <p>И тут...</p>
+            <p>Раздался взрыв.</p>
+            <p>Нет, не взрыв — хохот.</p>
+            <p>Из-за угла вывалился парень.</p>
+            <p>Рыжие волосы (ярче пламени), кривой нос (явно сломанный не раз), каре-зелёные глаза.</p>
+            <p class="dialogue">"— О, новые лица! Я Оливер! Оливер Грейвуд! Алхимик, ботаник и по совместительству — самый веселый парень на этом болоте!"</p>
+            <p>Марта приподняла бровь.</p>
+            <p class="dialogue">"— Мы не ищем компанию."</p>
+            <p class="dialogue">"— Все ищут компанию!"</p>
+            <p>Он плюхнулся на скамью рядом с Рэем.</p>
+            <p class="dialogue">"— Ты идиот?"</p>
+            <p class="dialogue">"— Доказано тремя независимыми исследованиями! Но зато я знаю, где найти "Лунный Корень"."</p>
+            <p>Марта замерла.</p>
+            <p class="dialogue">"— Ты врешь."</p>
+            <p class="dialogue">"— Редко!"</p>
+            <p>И в этот момент Оливер уже наливал им что-то зеленое и шипучее в стаканы.</p>
+            <p class="dialogue">"— Выпьем за знакомство!"</p>
+            <p>А Оливер уже рассказывал историю о том, как подрался с растением-людоедом.</p>
+            <p>И что-то в этом безумном, безрассудном смехе...</p>
+            <p>Засверлило в груди Рэя тёплой искоркой.</p>
+            <p>Марта улыбнулась — впервые за долгое время.</p>
+            <p>А Оливер кричал что-то про "лучшую команду на свете".</p>
+            <p>Но, кажется...</p>
+            <p>Уже было поздно возражать.</p>
+            <h3>26. Начало чего-то большего</h3>
+            <p>К утру они уже знали:</p>
+            <p>— Оливер не умеет молчать.</p>
+            <p>— Его шутки дурацкие, но заразительные.</p>
+            <p>— Он действительно разбирается в алхимии.</p>
+            <p>— И он уже считал их друзьями.</p>
+            <p>Когда они вышли из таверны, солнце только всходило.</p>
+            <p class="dialogue">"— Куда теперь?"</p>
+            <p>Марта посмотрела на Рэя.</p>
+            <p>Рэй пожал плечами.</p>
+            <p class="dialogue">"— Вперёд."</p>
+            <p>И Оливер засмеялся, как будто это было самое лучшее слово на свете.</p>
+            <p>Потому что теперь они шли втроём.</p>
+        `
+    },
+    {
+        number: "Глава 6",
+        title: "Тропа Наследника",
+        content: `
+            <h3>27. Лепестковые Топи</h3>
+            <p>Дорога в Эльдривар давно закончилась, сменившись узкой тропой среди Лепестковых Топей — болотистой равнины, где вода переливалась всеми цветами радуги.</p>
+            <p>Оливер шёл впереди, размахивая стеклянной палочкой, на кончике которой пульсировал розовый огонёк.</p>
+            <p class="dialogue">"— Вот видите этот мох? Если его встряхнуть трижды и прошептать "спасибо", он выделяет фермент, превращающий воду в лимонад!"</p>
+            <p>Мох тут же свернулся в трубочку.</p>
+            <p>Оливер уже тряс мох, бормоча что-то под нос.</p>
+            <p class="dialogue">"— Попробуй!"</p>
+            <p>Рэй колебался, но Марта, не отрываясь от записей, протянула руку.</p>
+            <p class="dialogue">"— Дай сюда."</p>
+            <p>Она отхлебнула и тут же скривилась.</p>
+            <p class="dialogue">"— На вкус как прокисший лимонад, смешанный с ржавыми гвоздями."</p>
+            <p class="dialogue">"— Ну, технически, это и есть лимонад!"</p>
+            <p>Рэй хотел что-то ответить, но в этот момент — БА-БАХ!</p>
+            <p>Оливер, отпрыгнув от восторга, наступил на что-то мягкое.</p>
+            <p>Розовое облако взметнулось в воздух.</p>
+            <p class="dialogue">"— Не дышать!"</p>
+            <p>Рэй почувствовал, как мир поплыл перед глазами.</p>
+            <h3>28. Галлюцинации и Глиняный Город</h3>
+            <p>Очнулся он через час.</p>
+            <p>Первое, что он увидел — Оливера, сидевшего на корточках перед муравейником.</p>
+            <p class="dialogue">"— ...и тогда я сказал: "Нет, дружище, так не пойдёт!""</p>
+            <p>Рэй моргнул, пытаясь понять, не спит ли он.</p>
+            <p>Потом услышал смех.</p>
+            <p>Марта сидела на бревне, заплетая себе волосы в косички.</p>
+            <p>Он хотел рассмеяться вместе с ней, но в этот момент что-то щелкнуло в его сознании.</p>
+            <p>Он вспомнил.</p>
+            <p>Они шли за Лунным Корнем.</p>
+            <p>Но куда?</p>
+            <h3>29. Вопрос без ответа</h3>
+            <p class="dialogue">"— Эй, а куда мы вообще идем?"</p>
+            <p>Марта замерла.</p>
+            <p>Рэй посмотрел на глиняный Теплис в своих руках.</p>
+            <p class="dialogue">"— За Лунным Корнем."</p>
+            <p class="dialogue">"— А зачем он нам?"</p>
+            <p>Молчание.</p>
+            <p class="dialogue">"— Для... зелья?"</p>
+            <p class="dialogue">"— Какого зелья?"</p>
+            <p class="dialogue">"— Я... не помню."</p>
+            <p>Рэй сжал кулаки, и глиняный городок расплющился в его ладони.</p>
+            <p class="dialogue">"— Мы что, вообще не знаем, зачем идем?"</p>
+            <p>Марта вдруг встала.</p>
+            <p class="dialogue">"— Нет. Мы знаем."</p>
+            <p>Она указала в сторону.</p>
+            <p class="dialogue">"— Там."</p>
+            <p>Туман сгустился, превратившись в плотную пелену.</p>
+            <p class="dialogue">"— Туманы Забвения. Они стирают память."</p>
+            <p>И без лишних слов они шагнули в туман.</p>
+            <p>Навстречу хижине на краю мира.</p>
+            <h3>30. Встреча с Мудрецом</h3>
+            <p>Туманы Забвения обволакивали их плотной пеленой.</p>
+            <p>И вдруг — хижина.</p>
+            <p>Дом был старым — не просто ветхим, а древним.</p>
+            <p>А на крыльце сидел он.</p>
+            <p>Старик.</p>
+            <p>Его борода переплеталась с корнями огромного дуба, растущего прямо сквозь половицы.</p>
+            <p>В руках он держал череп.</p>
+            <p class="dialogue">"— А, наследник пожаловал."</p>
+            <p>Рэй остановился.</p>
+            <p class="dialogue">"— О чем вы?"</p>
+            <p>Тот рассмеялся.</p>
+            <p>И из его рта вылетели три мотылька.</p>
+            <p class="dialogue">"— Сила Первого Изгнанника течет в твоих жилах."</p>
+            <p>Он швырнул в огонь очага горсть песка — не обычного, а черного.</p>
+            <p>Пламя взревело, вытянулось вверх, и вдруг — Видение.</p>
+            <p class="important">Первый Изгнанник</p>
+            <p>Они увидели его.</p>
+            <p>Высокого, с кожей, покрытой шрамами-рунами, светящимися изнутри.</p>
+            <p>А потом — Ребенка в колыбели (Рэя?).</p>
+            <p class="dialogue">"— Он был первым, — голос старика стал глуше. — Первым, кто понял, что магия — это не дар. Это болезнь."</p>
+            <p class="dialogue">"— Твой род столетиями скрывал эту силу."</p>
+            <p>Рэй сжал кулаки.</p>
+            <p>Под его ногами камни вздыбились, а затем расплавились.</p>
+            <p class="dialogue">"— Почему я?"</p>
+            <p class="dialogue">"— Потому что мир снова готов гореть."</p>
+            <p>Внезапно стих.</p>
+            <p>Туман рассеялся.</p>
+            <p>А когда Марта обернулась — хижины уже не было.</p>
+            <p>Только три мотылька кружили над их головами.</p>
+            <p class="dialogue">"Он смотрит на тебя, мальчик. И ждет."</p>
+            <h3>31. После Откровения</h3>
+            <p>Туманы рассеялись, но тяжесть услышанного висела в воздухе плотнее любого марева. Рэй стоял, сжимая кулаки до хруста костяшек, чувствуя, как тьма внутри него шевелится, будто разбуженная словами старика.</p>
+            <p class="dialogue">"— Наследник Изгнанника... — прошептала Марта, глядя на него с новым выражением — не страха, а жадного любопытства.</p>
+            <p>Оливер, напротив, выплюнул свою лягушачью сигару и засунул руки в карманы.</p>
+            <p class="dialogue">"— Ну что, команда, теперь мы официально в эпической саге!</p>
+            <p>Рэй не ответил. Камни под его ногами все еще светились, сохраняя следы расплавленного стекла.</p>
+            <h3>32. Ночные Исповеди</h3>
+            <p>У костра той ночью было тихо.</p>
+            <p>Марта сидела, скрестив ноги, и чинила амулет — медную подвеску с треснувшим камнем. Оливер возился с какими-то склянками, но сегодня без обычного шума — будто понимал, что сейчас не время для безумных экспериментов.</p>
+            <p>Рэй смотрел в огонь, видя в пламени тот самый образ — Араниса, разрывающего небо.</p>
+            <p class="dialogue">"— Ты думаешь, это правда? — спросил он наконец.</p>
+            <p>Марта отложила амулет.</p>
+            <p class="dialogue">"— Мотыльки показали мне библиотеку... Там были свитки с твоим именем. Вырванные страницы.</p>
+            <p>Оливер присвистнул.</p>
+            <p class="dialogue">"— Значит, тебя буквально стерли из истории. Круто!</p>
+            <p>Рэй резко встал, и пламя костра взметнулось вверх, окрашивая все в синие оттенки.</p>
+            <p class="dialogue">"— Это не круто! — его голос звучал чужим, с примесью чего-то древнего и опасного. — Я — потомок того, кто чуть не уничтожил мир!</p>
+            <p>Марта не отпрянула. Напротив, она подошла ближе, так близко, что он чувствовал тепло ее дыхания.</p>
+            <p class="dialogue">"— Ты не он.</p>
+            <p class="dialogue">"— А если я стану таким же?</p>
+            <p>Она прикоснулась к его груди, прямо над сердцем.</p>
+            <p class="dialogue">"— Тогда я остановлю тебя.</p>
+            <p>И в этот момент что-то дрогнуло в его груди.</p>
+            <h3>33. Первая Искра</h3>
+            <p>Следующие дни прошли в странной гармонии.</p>
+            <p>Оливер вернулся к своим безумным опытам, но теперь следил, чтобы ничего не взорвалось рядом с Рэем.</p>
+            <p>Марта стала чаще прикасаться к нему — поправляла плащ, случайно касалась руки, когда передавала флягу.</p>
+            <p>А Рэй...</p>
+            <p>Рэй учился.</p>
+            <p>Его нимб больше не пылал яростью — теперь это было ровное сияние, как лунный свет на воде.</p>
+            <p>Тени слушались без требований крови.</p>
+            <p>И однажды ночью, когда Марта уронила книгу, он поймал ее на лету — не руками, а сгустком воздуха, мягким, как шепот.</p>
+            <p>Она улыбнулась, и в этот момент он понял —</p>
+            <p>Он не боится своей силы.</p>
+            <p>Он боится ее потерять.</p>
+            <h3>Ночь перед бурей</h3>
+            <p>В таверне "Кривой котёл" пахло дымом, медовым элем и чем-то неуловимо-тёплым.</p>
+            <p>Комната, которую они сняли, была маленькой, но уютной. Одна кровать (Оливер тут же заявил, что поспит на полу, "потому что героические алхимики должны страдать"), стол с треснувшей столешницей и окно, через которое лился лунный свет.</p>
+            <p>Марта сидела на краю кровати, перебирая страницы своего дневника. В свете единственной свечи её черно-красные волосы казались тёмным вином с проблесками меди.</p>
+            <p class="dialogue">"— Ты знаешь, я нашла кое-что интересное... — она провела пальцем по странице, где был нарисован символ, напоминающий треснувшее зеркало. — Это печать Араниса. Она встречается в руинах по всему континенту.</p>
+            <p>Рэй стоял у окна, спиной к ней. Его тени сегодня были спокойны — лениво шевелились у ног, как сонные звери.</p>
+            <p class="dialogue">"— И?</p>
+            <p class="dialogue">"— И везде, где она есть... люди исчезали. Не умирали. Просто стирались из памяти.</p>
+            <p>Он обернулся. В её глазах не было страха. Было что-то другое — вызов? Нет. Доверие.</p>
+            <p class="dialogue">"— Ты думаешь, это случится со мной?</p>
+            <p>Марта встала, подошла ближе. Её босые ступни не издали ни звука.</p>
+            <p class="dialogue">"— Нет.</p>
+            <p class="dialogue">"— Почему?</p>
+            <p class="dialogue">"— Потому что я запомню.</p>
+            <p>Она подняла руку, коснулась его щеки.</p>
+            <p>И мир сузился до этого прикосновения.</p>
+            <h3>Момент, который почти случился</h3>
+            <p>Он не помнил, кто сделал первый шаг.</p>
+            <p>Только то, что вдруг расстояние между ними исчезло.</p>
+            <p>Её дыхание пахло мятой (она жевала листья, чтобы не заснуть в дороге).</p>
+            <p>Её ресницы отбрасывали тени на скулы.</p>
+            <p>Её губы были такими близкими, что он уже чувствовал их тепло, ещё не коснувшись.</p>
+            <p>И вот он наклонился...</p>
+            <p>Дверь распахнулась с таким грохотом, что свеча погасла.</p>
+            <p class="dialogue">"— ДРУЗЬЯ!</p>
+            <p>Оливер ворвался, как торнадо в рыжем парике. Его плащ был перепачкан чем-то фиолетовым, в руках он сжимал огромный цветок, который пульсировал, как сердце.</p>
+            <p class="dialogue">"— У МЕНЯ КРИТИЧЕСКАЯ СИТУАЦИЯ!</p>
+            <p>Рэй замер, его губы в сантиметре от Марты. Она закатила глаза, но уголки губ дрогнули.</p>
+            <p class="dialogue">"— Оливер... — её голос звучал смертельно спокойно. — Если ты не умираешь, я тебя прикончу сама.</p>
+            <p class="dialogue">"— НЕТ ВРЕМЕНИ ШУТИТЬ! — он швырнул цветок на стол, и тот заплакал липкими слезами. — Видите это? Это слезы лунной орхидеи! Если я не смешаю их с порошком феникса в течение ДЕСЯТИ МИНУТ, весь эксперимент насмарку!</p>
+            <p>Рэй медленно разжал пальцы (он даже не заметил, как сжал кулаки, а стены покрылись инеем).</p>
+            <p class="dialogue">"— И... что это за эксперимент?</p>
+            <p>Оливер вдохнул полной грудью, глаза горели.</p>
+            <p class="dialogue">"— Я ХОЧУ, ЧТОБЫ ОН ЗАПЕЛ!</p>
+            <p>Тишина.</p>
+            <p>Марта первая рассмеялась — тихо, сдавленно, потом громче.</p>
+            <p>Рэй уронил голову ей на плечо, его смех сотрясал обоих.</p>
+            <p>Оливер стоял, краснея:</p>
+            <p class="dialogue">"— ЭТО ВАЖНО! ПРЕДСТАВЬТЕ, ЕСЛИ ЦВЕТЫ СМОГУТ ПЕТЬ! ЭТО ПЕРЕВЕРНЁТ БОТАНИКУ!</p>
+            <p>Марта, всё ещё смеясь, отделилась от Рэя, взяла склянку с полки и швырнула её Оливеру.</p>
+            <p class="dialogue">"— Вот порошок феникса. Теперь ВОН.</p>
+            <p>Дверь захлопнулась.</p>
+            <p>Тишина.</p>
+            <p>Они смотрели друг на друга.</p>
+            <p class="dialogue">"— ...продолжим? — пробормотал Рэй.</p>
+            <p>Но момент был упущен.</p>
+            <p>Где-то за стеной раздался взрыв, и фиолетовый дым повалил из-под двери.</p>
+            <p>Марта вздохнула, прижалась лбом к его груди.</p>
+            <p class="dialogue">"— Мы правда пытаемся целоваться, пока он жив?</p>
+            <p>Рэй обнял её, прижал губы к её волосам.</p>
+            <p class="dialogue">"— Зато теперь есть, что вспомнить.</p>
+        `
+    },
+    {
+        number: "Глава 7",
+        title: "Лик Первого Изгнанника",
+        content: `
+            <h3>1. Видение в Бездне</h3>
+            <p>Рэй проснулся от того, что его кровь кричала.</p>
+            <p>Он лежал не в таверне, не у костра — а в пустоте, где не было ни земли под ногами, ни неба над головой. Только тьма, густая, как чернила, и в ней — Он.</p>
+            <p>Аранис.</p>
+            <p>Первый Изгнанник стоял перед ним. Лишь глаза горели — не синим, не красным, а цветом потухшей звезды.</p>
+            <p class="dialogue">"— Ради кого идёте на смерть?"</p>
+            <p>Рэй попытался встать, но тени держали его.</p>
+            <p class="dialogue">"— Хотите подарить им свободу? А что они с ней будут делать?"</p>
+            <p class="dialogue">"— Они... — Рэй сжал кулаки. — Они заслуживают шанса."</p>
+            <p>Аранис рассмеялся.</p>
+            <p class="dialogue">"— Ты веришь в это? Или просто боишься признать, что мир не стоит спасения?"</p>
+            <p>Рэй не ответил.</p>
+            <h3>2. Исповедь в Тени</h3>
+            <p class="dialogue">"— Тебе надо понять, что для тебя важнее."</p>
+            <p>Аранис сделал шаг назад, и пустота ожила.</p>
+            <p>Перед Рэем проносились образы:</p>
+            <p>— Марта, держащая его за руку.</p>
+            <p>— Оливер, смеющийся над собственной глупостью.</p>
+            <p>— Лира, его сестра.</p>
+            <p class="dialogue">"— Я уже давно решил, — прошептал Рэй.</p>
+            <p>Аранис замер.</p>
+            <p class="dialogue">"— Как интересно. И что же ты решил?"</p>
+            <p class="important">"— Лишь утратив всё до конца, мы обретаем свободу."</p>
+            <p>Тишина.</p>
+            <p>Потом — взрыв хохота.</p>
+            <p class="dialogue">"— Точно. Тебе нужна свобода?"</p>
+            <p>Рэй закрыл глаза.</p>
+            <p class="dialogue">"— Не знаю. Может быть, и нужна."</p>
+            <h3>3. Последний Вопрос</h3>
+            <p>Аранис исчез.</p>
+            <p>Но его голос остался:</p>
+            <p class="dialogue">"— Ты ненавидишь их. За то, что предали. За то, что не увидели в тебе человека."</p>
+            <p>Рэй открыл глаза.</p>
+            <p>Он снова лежал у костра.</p>
+            <p>Марта спала, прижавшись к его плечу. Оливер храпел в трёх шагах.</p>
+            <p>А в груди...</p>
+            <p>В груди горело.</p>
+            <p>Не яростью.</p>
+            <p>Не пеплом.</p>
+            <p>А чем-то другим.</p>
+            <p>Чем-то, что Аранис так и не смог понять.</p>
+            <h3>4. Пробуждение</h3>
+            <p>Утром Марта проснулась первой.</p>
+            <p class="dialogue">"— Ты в порядке?"</p>
+            <p>Рэй посмотрел на неё.</p>
+            <p class="dialogue">"— Да."</p>
+            <p class="dialogue">"— Что-то случилось?"</p>
+            <p>Он улыбнулся.</p>
+            <p class="dialogue">"— Просто понял кое-что."</p>
+            <p class="dialogue">"— И что?"</p>
+            <p class="important">"— Что свобода — это не отсутствие цепей."</p>
+            <p class="dialogue">"— А что?"</p>
+            <p class="important">"— Возможность выбирать, ради кого их надеть."</p>
+            <p>Марта задумалась, потом кивнула.</p>
+            <p class="dialogue">"— Значит, мы идём дальше?"</p>
+            <p class="dialogue">"— Идём."</p>
+            <p>А где-то в глубине сознания Аранис наблюдал.</p>
+            <p>И впервые за тысячелетия — молчал.</p>
+        `
+    },
+    {
+        number: "Глава 8",
+        title: "Охотник на Теней",
+        content: `
+            <h3>1. Дорога в Забытый Каньон</h3>
+            <p>Тропа вилась между скал, острых, как клыки древнего зверя.</p>
+            <p>Воздух был густым, пропитанным запахом серы и перегоревшей магии.</p>
+            <p>Рэй шёл первым, его нимб пульсировал в такт шагам.</p>
+            <p>Он чувствовал его задолго до того, как увидел. Охотника.</p>
+            <p>Марта шла рядом. Оливер молчал.</p>
+            <p class="dialogue">"— Он здесь."</p>
+            <p>Тени вокруг сжались.</p>
+            <h3>2. Первый Удар</h3>
+            <p>Он появился бесшумно, как призрак.</p>
+            <p>Фигура в плаще из теней, с клинками, выкованными из застывшего света.</p>
+            <p class="dialogue">"— Рэй из Теплиса, — произнёс охотник. — Наследник Араниса."</p>
+            <p>Боль.</p>
+            <p>Лезвие прочертило по его плечу, рассекая кожу и мышцы.</p>
+            <p class="dialogue">"— Сзади!"</p>
+            <p>Клинок вонзился в ногу Марты, и она рухнула на колени.</p>
+            <p>Рэй вскипел.</p>
+            <h3>3. Игра в Прятки со Смертью</h3>
+            <p>Охотник бил точечно, словно наслаждался их страхом.</p>
+            <p>Рэй видел его атаки — его восприятие ускорилось, и каждый шаг убийцы отпечатывался в сознании, как будто время замедлилось. Но его тело не поспевало.</p>
+            <p>Охотник материализовался слева — Рэй едва успел отклониться, но лезвие всё равно оставило глубокий порез на боку.</p>
+            <p class="dialogue">"— Ты быстрый, мальчик, — усмехнулся охотник, — но недостаточно.</p>
+            <p>Следующий удар пришёлся по Оливеру — клинок пронзил его плечо, вырывая клок плоти. Оливер застонал, кровь лилась по руке, светящаяся, будто её пронизывала чужая магия.</p>
+            <p class="dialogue">"— Хватит! — проревел Рэй, но охотник лишь рассмеялся, его голос раздавался со всех сторон сразу, как эхо в пустом ущелье.</p>
+            <p class="dialogue">"— Ты силён, мальчик. Но твои друзья — слабы.</p>
+            <p>Сердце Рэя сжалось.</p>
+            <h3>4. Разрыв</h3>
+            <p>Он не видел удара.</p>
+            <p>Только крик Марты.</p>
+            <p>Охотник материализовался за её спиной, клинок уже занесён для смертельного удара.</p>
+            <p>Всё остановилось.</p>
+            <p>Рэй больше не думал.</p>
+            <p>Он просто... отпустил.</p>
+            <h3>5. Апокалипсис за Секунду</h3>
+            <p>Мир разорвался.</p>
+            <p>Нимб Рэя расширился, превратившись в воронку.</p>
+            <p>Крылья тьмы расправились за его спиной.</p>
+            <p>В руке материализовался тёмный клинок.</p>
+            <p>Охотник замедлился, его клинки рассыпались в прах.</p>
+            <p>Рэй шагнул вперёд.</p>
+            <p>Охотник попытался ударить — но Рэй парировал одним движением.</p>
+            <p class="dialogue">"— Ты... что ты?.."</p>
+            <p>Рэй поднял руку, и в его ладони сжался шар энергии — синий, как пламя ада.</p>
+            <p>Выстрел.</p>
+            <p>Охотник увернулся в последний момент.</p>
+            <p>Гора содрогнулась.</p>
+            <h3>6. Голос в Буре</h3>
+            <p class="dialogue">"— Рэй..."</p>
+            <p>Сквозь рёв разрушения пробился шёпот.</p>
+            <p>Лира.</p>
+            <p>Его сестра.</p>
+            <p class="dialogue">"— Остановись..."</p>
+            <p>Пламя дрогнуло.</p>
+            <h3>7. Возвращение</h3>
+            <p>Рэй закрыл глаза.</p>
+            <p>Вдох.</p>
+            <p>Выдох.</p>
+            <p>Тьма отступила.</p>
+            <p>Когда он открыл их снова, перед ним лежал охотник — полуразрушенный.</p>
+            <p class="dialogue">"— Почему... не добиваешь?"</p>
+            <p>Рэй не ответил.</p>
+            <p>Он просто развернулся и пошёл к Марте и Оливеру.</p>
+            <p>Они были живы.</p>
+            <p>Этого хватило.</p>
+            <h3>8. После</h3>
+            <p class="dialogue">"— Ты... что это было?"</p>
+            <p>Оливер, бледный, но уже ухмыляющийся:</p>
+            <p class="dialogue">"— Ну... теперь я знаю, почему Араниса боялись."</p>
+            <p>А где-то в глубине Аранис засмеялся.</p>
+            <p>Тихо.</p>
+            <p>Довольно.</p>
+            <p>Как учитель, наблюдающий за первым успехом ученика.</p>
+        `
+    },
+    {
+        number: "Глава 9",
+        title: "Эхо Прошлого в Глазах Элис",
+        content: `
+            <h3>32. Нежданная встреча в лагере охотников</h3>
+            <p>Лес после битвы с Охотником на Теней жил своей, напряжённой жизнью. Рэй, Марта и Оливер, спрятанные в магическом коконе палатки, наблюдали, как в сотне метров от них разбивает лагерь новый отряд охотников.</p>
+            <p>Именно тогда Рэй увидел её.</p>
+            <p>Она двигалась среди грубых наёмников не как чужеродный элемент, а с холодной, отточенной уверенностью человека, который знает цену выживанию. Её волосы — тот самый рыжий, яростно пробивающийся из-под смытой чёрной краски, словно пожар на пепелище, — были убраны в строгий пучок. Рост в 172 см делал её статной, а прямой стан и твёрдый взгляд говорили о том, что насмешки и попытки её сломать остались далеко в прошлом. Они не сломили её, а выковали сталь в её душе.</p>
+            <p>Но когда один из охотников что-то крикнул ей, она обернулась, и на её лице на мгновение вспыхнула та самая, знакомая только Рэю, улыбка — чуть уставшая, но не сломленная, с лёгкой иронией в уголках губ. Этого мгновения хватило, чтобы мир для Рэя перевернулся.</p>
+            <p class="important">«Элис...» — это имя сорвалось с его губ, звуча как молитва и приговор одновременно.</p>
+            <h3>33. Воспоминание: Три года назад. Трещина в стене</h3>
+            <p>Три года назад. Теплис. Рэй застал её за мастерской, в узком переулке, где она, сжав кулаки, яростно смотрела на стену, с которой только что содрала похабную надпись о себе. Её пальцы были в ссадинах.</p>
+            <p class="dialogue">«Отец говорит, не обращай внимания. Что правосудие — это единственное оружие, которое стоит использовать», — выдохнула она, и в её глазах стояли не слёзы, а холодная ярость. «Но его слова не останавливают их. Адвокат может выиграть дело, но не может вырвать яд из сердец».</p>
+            <p>Её отец, идеалист-адвокат, брался за дела изгоев, наживая влиятельных врагов. Элис платила за его принципы в школьных коридорах — насмешками, испорченными вещами, одиночеством. Она стала изгоем по наследству.</p>
+            <p>Рэй, сам привыкший быть «удобным» для всех, впервые увидел в ней родственную душу. Они не строили планов. Они были двумя ранеными зверьками, греющимися у одного огонька понимания. Она рассказывала ему о предательствах «друзей», о тяжести морального выбора — ударить в ответ или стерпеть, чтобы не подвести отца. Он молча слушал, и в его тишине она находила покой.</p>
+            <p>Была одна ночь, холодная и звёздная. Они сидели на крыше, и она, глядя в темноту, сказала: <span class="important">«Иногда мне кажется, я ношу в груди не сердце, а синяк. Сплошной, фиолетовый синяк».</span></p>
+            <p>А потом её отец погиб. Не в бою. Его подвело собственное сердце, подточенное годами стресса и борьбы с системой. Для Элис это стало последним, решающим предательством — предательством собственного тела самого близкого человека. Мир, который и так был к ней недобр, отнял последнюю опору.</p>
+            <p>Она уехала, не попрощавшись. Рэй понял. Иногда прощание — это роскошь, на которую у тебя просто нет сил.</p>
+            <h3>34. Узнавание. Два Одиночества</h3>
+            <p>В настоящем, наблюдая за ней, Рэй видел не ту сломленную девушку из переулка. Он видел результат. Видел, как та боль и предательство, которые могли уничтожить, закалили её. В её движениях была не просто грация бойца, а уверенность человека, который прошёл через ад и больше ничего не боится потерять. Её улыбка была той же — но теперь это была улыбка не наивной девчонки, а воина, знающего цену своей стойкости.</p>
+            <p>Их взгляды встретились сквозь барьер. Она замерла, и на её лице промелькнула целая буря эмоций: шок, боль от старых ран, и — та самая, едва уловимая надежда, которую она, казалось, давно похоронила.</p>
+            <p class="dialogue">«Она... охотница?» — пробормотал Оливер. «Выглядит так, будто она может разобрать и собрать врага на молекулы, даже не испортив маникюр».</p>
+            <p>Но Рэй видел больше. Он видел в её глазах ту же пустоту, что была в его собственных — пустоту, оставшуюся после того, как из твоей жизни уходят те, кто наполнял её смыслом.</p>
+            <h3>35. Ночной визит. Синяки на душах</h3>
+            <p>Ночью он вышел к ней. Когда он отпустил барьер, она не испугалась. Она выдохнула: <span class="dialogue">«Я знала. Чувствовала... как будто моё старое синяк в груди начал снова ныть».</span></p>
+            <p>Они стояли друг напротив друга — два существа, чьи души были похожи на покрытые шрамами и синяками поля сражений.</p>
+            <p class="dialogue">«Они говорят, ты монстр», — сказала она, её голос был ровным, без осуждения.</p>
+            <p class="dialogue">«А ты? Что ты видишь?» — спросил он, боясь услышать ответ.</p>
+            <p>Элис медленно подняла руку и прикоснулась к своей груди, точно над сердцем.</p>
+            <p class="important">«Я вижу парня, у которого, как и у меня, внутри один большой синяк. Только мой — от потерь и предательств. А твой... — её взгляд скользнул по его тлеющему нимбу, — ...от ярости, что его не спасли, когда он в этом нуждался».</p>
+            <p>В её словах не было жалости. Было понимание. Глубинное, кровоточащее понимание двух людей, которые знают, каково это — пытаться собрать себя по кусочкам после того, как мир разбил тебя вдребезги.</p>
+            <p class="dialogue">«Я искала тебя, — тихо призналась она. — После отца... после всего... я пыталась строить отношения. Искала кого-то, кто поймёт. Но все они хотели «починить» меня. Сделать удобной. А ты... — она посмотрела на него, и в её глазах вспыхнул тот самый огонь, что питал её все эти годы, — ...ты никогда не пытался меня починить. Ты просто был рядом. И сейчас... ты не пытаешься спрятать свою тьму. Ты носишь её как доспехи. И в этом ты всё тот же».</p>
+            <p>В этот миг Рэй почувствовал, как что-то зажатое и мёртвое в его груди начинает расслабляться и оживать. Это была не надежда глупца. Это была уверенность. Уверенность в том, что если она, пройдя через всё это, смогла остаться собой и найти в себе силы улыбаться, то и он сможет.</p>
+            <p class="dialogue">«Элис...» — больше он не мог говорить.</p>
+            <p class="important">«Ты не один, Рэй, — прошептала она, отступая в тень. — И никогда больше не будешь. Я найду тебя. Мы... мы выжили не для того, чтобы просто существовать в этом аду. Мы выжили, чтобы найти друг друга и построить что-то новое. Что-то хорошее».</p>
+            <p>Она ушла, оставив его с новым, невероятным чувством — чувством цели, выходящей за рамки мести и выживания. Теперь он сражался не только за то, чтобы не стать монстром. Он сражался за будущее. За то будущее, где её улыбка будет светиться не в дымке боли, а в сиянии настоящего, заслуженного счастья. И ради этого он был готов сразиться с самим Аранисом и всей тьмой этого мира.</p>
+            <h3>1. Приказ</h3>
+            <p>Элис стояла по стойке смирно в кабинете начальника гильдии, капитана Вектора. Воздух пахнул воском, старым деревом и железом. Вектор, мужчина с лицом, изборождённым шрамами и лишённым всякой теплоты, протянул ей свёрток с грифом «Смертельный приоритет».</p>
+            <p class="dialogue">«Цель — аномалия, известная как «Тень Араниса», — его голос был ровным, как заточённая сталь. «Высокий уровень угрозы. Не брать живьём. Уничтожить на месте. Возглавите группу «Коготь». Вы лучшая в отслеживании магических следов. Этот... мусор из Теплиса должен быть стёрт с лица земли».</p>
+            <p>Сердце Элис упало, превратившись в комок ледяного ужаса. Рэй. Они вышли на его след. Она машинально взяла свёрток, пальцы похолодели.</p>
+            <p class="dialogue">«Капитан... есть ли данные о его сообщниках?» — голос её не подвёл, годами тренировок.</p>
+            <p class="dialogue">«Блаж-алхимик и какая-то учёная крыса. Стереть вместе с ним. Чистое поле. Понятно?»</p>
+            <p class="dialogue">«Понятно, капитан».</p>
+            <p>Выйдя из кабинета, она прислонилась к холодной стене, пытаясь заглушить гул в ушах. Перед ней стоял выбор: предать гильдию, которая стала ей заменой семьи после смерти отца, дала ей крышу над головой и цель... или предать Рэя. Мальчика, который видел в ней человека, а не солдата. Мужчину, в чьих объятиях она начала забывать, что такое боль.</p>
+            <h3>2. Засада</h3>
+            <p>Она вела отряд по следам, которые сама же и вычислила — но повела их по ложному пути, выигрывая время. Она отправила Оливеру их тайный знак — перевёрнутую метку охотника, выжженную на коре дерева. «Опасность. Уходите».</p>
+            <p>Но Вектор был не так прост. Он послал вторую группу по настоящему следу.</p>
+            <p>Засада настигла Рэя и его друзей в Ущелье Разбитых Сердец — каньоне, где скалы были красными, как запёкшаяся кровь. Бой начался мгновенно. Заклинания охотников, гасящие магию, свистели в воздухе. Оливер отбивался взрывающимися флаконами, Марта пыталась создать защитный барьер, но её дневник выпал из рук, страницы разлетелись по ветру.</p>
+            <p>Рэй был в ярости. Его нимб пылал, тени срывались с цепи, но охотники были подготовлены. Их клинки и стрелы были выкованы из лунного камня, нейтрализующего его силу. Один из них, огромный детина с мордой, искажённой ненавистью, уже занёс обоюдоострый топор над поверженной Мартой.</p>
+            <h3>3. Решающий миг</h3>
+            <p>Элис и её отряд вышли на край ущелья как раз в этот момент.</p>
+            <p class="dialogue">«Лидер! Приказ!» — крикнул один из её людей, уже натягивая тетиву.</p>
+            <p>Время для Элис замедлилось. Она увидела лицо Рэя — искажённое не яростью, а отчаянием, пока он пытался дотянуться до Марты. Увидела насмешливую ухмылку капитана Вектора, наблюдающего с противоположного утёса. Услышала в памяти голос отца: <span class="important">«Всегда защищай тех, кто не может защитить себя, даже если это стоит тебе всего».</span></p>
+            <p>Предать гильдию... или предать своё сердце?</p>
+            <p>Её рука с луком дрогнула.</p>
+            <p>А потом опустилась.</p>
+            <p class="dialogue">«Нет», — тихо сказала она.</p>
+            <p class="dialogue">«Лидер?»</p>
+            <p class="dialogue">«Я сказала НЕТ!» — её крик прозвучал на всю долину. Она развернулась, и её стрела с свистом вонзилась не в Рэя, а в руку детины с топором, отбрасывая его от Марты.</p>
+            <p>Гробовая тишина повисла на мгновение. А потом — шквал.</p>
+            <p class="dialogue">«Измена!» — проревел Вектор. «Предательница! Убить их всех!»</p>
+            <p>Её собственный отряд, люди, с которыми она делила хлеб и опасности, смотрели на неё с шоком и ненавистью. Теперь они были её мишенями.</p>
+            <h3>4. Битва и Бегство</h3>
+            <p>Хаос. Элис сражалась с отчаянной яростью загнанного зверя. Она знала стиль боя каждого из своих бывших товарищей, их слабые места. Она не убивала, если могла избежать — калечила, обездвиживала, отвлекала.</p>
+            <p>Рэй, увидев её в гуще боя против своих же, словно прозрел. Его ярость сменилась холодной, сфокусированной мощью. Его тени, больше не сдерживаемые сомнениями, обрушились на охотников с новой силой. Теперь он защищал не только себя, но и её.</p>
+            <p>Вместе они проложили путь к отступлению. Оливер, истекая кровью, швырнул дымовую шашку своего особого приготовления, которая заполнила каньон едким фиолетовым туманом, скрывая их бегство.</p>
+            <h3>5. Клеймо</h3>
+            <p>Когда они, наконец, рухнули от изнеможения в пещере в нескольких милях от ущелья, Элис первым делом посмотрела на своё левое запястье. Там, где раньше была татуировка с символом гильдии, теперь был лишь болезненный красный рубец — Вектор дистанционно активировал клеймо предателя. Знак выжег плоть, оставив уродливый шрам в виде перечёркнутого меча.</p>
+            <p>Она больше не была охотницей. Она была изгоем. Целью.</p>
+            <p>Она подняла глаза и встретила взгляд Рэя. В его глазах не было ни триумфа, ни жалости. Была тихая, бездонная благодарность и понимание.</p>
+            <p class="dialogue">«Мне жаль», — хрипло сказал он, указывая на её запястье.</p>
+            <p>Элис слабо улыбнулась, стирая с лица кровь и пыль. <span class="dialogue">«Не стоит. Я просто... наконец-то выбрала ту сторону, на которой должна была быть с самого начала».</span></p>
+            <p>Она потеряла всё, что имела в старом мире. Но, глядя на Рэя, на хнычущего Оливера, которого Марта перевязывала, она поняла — она обрела нечто бесконечно более ценное. Семью. И это был её окончательный, бесповоротный выбор. Её точка невозврата.</p>
+            <h3>1. Ночной кошмар</h3>
+            <p>Спустя несколько дней после бегства, их новообретённый покой был нарушен. Не нападением, а тишиной. Птицы замолчали. Ветер стих. Воздух стал густым и тяжёлым, как в склепе.</p>
+            <p>И тогда из тумана вышел Он.</p>
+            <p>Отец Элис. Но не тот, каким она его помнила — уставший, но добрый адвокат с лучистыми морщинками у глаз. Это была его тень, вывернутая наизнанку. Кожа — бледная, почти прозрачная. Глаза — пустые впадины, из которых сочился тусклый свет. Он был одет в истлевшую судейскую мантию, а в руках держал не папку с делами, а весы, на одной чаше которых лежало его собственное остановившееся сердце, а на другой — пылающий угольёк, напоминающий ту самую метку предателя на запястье Элис.</p>
+            <p class="dialogue">«Дочка...» — его голос был шепотом скрипящих страниц и разочарований. «Посмотри, во что ты превратилась. Я боролся за справедливость, а ты... ты встала на сторону монстра».</p>
+            <h3>2. Атака изнутри</h3>
+            <p>Рэй и Оливер мгновенно вскочили, готовясь к бою. Но их атаки были бесполезны. Клинки и зелья проходили сквозь призрака, не причиняя вреда. Это была не физическая сущность. Это было воплощение её вины.</p>
+            <p>Тень отца не атаковала их. Она говорила. Каждое слово было ударом хлыста по душе Элис.</p>
+            <p class="dialogue">«Я умер, сражаясь за правду. А ты предала тех, кто дал тебе шанс».</p>
+            <p class="dialogue">«Ты думаешь, он тебя любит? Он — тьма. Он поглотит тебя, как поглотил всё хорошее в своей жизни».</p>
+            <p class="dialogue">«Ты опозорила мою память, Элис. Я бы предпочёл видеть тебя мёртвой, чем предательницей».</p>
+            <p>Элис, всегда такая сильная, стояла на коленях, сжав голову руками. Она не могла возражать. Это были её собственные, самые глубокие страхи, облечённые в голос самого дорогого человека.</p>
+            <p class="dialogue">«ЗАТКНИСЬ!» — взревел Рэй, и его нимб вспыхнул алым, тени взметнулись, но снова не нашли цели.</p>
+            <p>Призрак лишь усмехнулся. <span class="dialogue">«Она никогда не будет твоей, мальчик. Её душа принадлежит прошлому. Моему прошлому».</span></p>
+            <h3>3. Смена тактики: Битва за душу</h3>
+            <p>Рэй понял. Силой тут ничего не добиться. Это битва, которую может выиграть только она. Но он может дать ей оружие.</p>
+            <p>Он опустил свой клинок. Тени у его ног успокоились. Он медленно подошёл к Элис и встал на колени перед ней, заслоняя её от призрака своим телом. Он смотрел не на монстра, а в её глаза, полные от ужаса и боли.</p>
+            <p class="dialogue">«Элис, послушай меня», — его голос был тихим, но твёрдым, как сталь. «Это не твой отец. Твой отец любил тебя. Он гордился бы тобой сейчас. Гордился бы тем, что ты нашла в себе силы выбрать себя. Выбрать правду своего сердца».</p>
+            <p class="dialogue">«Он лжёт...» — прошипела тень.</p>
+            <p class="important">«ТВОЯ БОЛЬ — МОЯ БОЛЬ!» — крикнул Рэй, и его слова прозвучали как заклинание, от которого задрожала сама реальность. Он взял её лицо в свои руки. «ТВОЁ ПРОШЛОЕ — МОЁ. Каждое предательство, каждая насмешка, каждая слеза... я чувствую их, как свои. И я НЕ ПОЗВОЛЮ ЕМУ ЗАБРАТЬ ТЕБЯ! Ни этому призраку, ни гильдии, ни всему миру!»</p>
+            <h3>4. Прощание</h3>
+            <p>Слёзы текли по лицу Элис, но теперь это были не слёзы отчаяния, а слёзы очищения. Она смотрела на Рэя, и в её глазах медленно возвращалась сила. Она обернулась к призраку.</p>
+            <p class="dialogue">«Ты прав, папа», — тихо сказала она. «Ты умер, сражаясь за свою правду. И теперь я живу, сражаясь за свою. Моя правда — это он. Моя правда — это наше будущее. Я не предала твою память. Я продолжила твоё дело — я защищаю того, кого несправедливо преследуют. И я прощаю тебя. Прощаю за то, что ты оставил меня. И прошу... отпусти меня».</p>
+            <p>Призрак отца замер. Его черты поплыли, исказились. На мгновение в пустых глазницах мелькнула та самая, тёплая отеческая любовь, которую она помнила.</p>
+            <p class="dialogue">«Живи, дочка...» — прошептал призрак, и его голос стал мягким, родным. И он рассыпался пеплом, который унёс внезапно налетевший ветер.</p>
+            <p>Элис, всё ещё дрожа, обняла Рэя, вцепившись в него как в спасательный круг.</p>
+            <p class="dialogue">«Он... ушёл».</p>
+            <p class="dialogue">«Нет, — поправил Рэй, гладя её по волосам. — Он наконец-то обрёл покой. И ты тоже».</p>
+            <p>Шрам на её запястье больше не пылал. Он был просто шрамом. Напоминанием, но не клеймом. Её старые раны, наконец, начали заживать. Не потому, что боль ушла, а потому, что она нашла того, кто помог ей нести её тяжесть.</p>
+            <h3>Эпилог кошмара в позолоте</h3>
+            <p>Их свадьба была простой, тихой и совершенной. Оливер, с лицом, вымазанным сажей от взорвавшегося «торжественного фейерверка», и носом, торжественно распухшим от слёз, исполнял роль священника, тамады и оркестра. Марта, стиснув зубы, чтобы не разреветься, то и дело поправляла Элис фату — тот самый подарок, сотканный из лунного сияния и паутины лесных духов. Она вплетала в неё каждую ниточку с мыслью: «Пусть он будет счастлив». И пусть её собственное сердце в этот момент сжималось от щемящей, невысказанной боли. Она отдавала его счастье в другие руки, потому что любила его достаточно, чтобы желать ему света, даже если его источником будет не она.</p>
+            <p>Рэй смотрел на Элис, и ему казалось, что все трещины в его душе, все шрамы от тьмы, наконец, затянулись не золотом, а живой, теплой плотью новой жизни. Её улыбка была его личным солнцем, её смех — единственным воздухом, которым он хотел дышать. Произнося клятвы, его голос, привыкший рвать пространство шёпотом, звучал тихо, ясно, без единой трещины. Он клялся быть её щитом, её покоем, её тихой гаванью. Он верил. Он верил так сильно, что эта вера стала новой, хрупкой реальностью.</p>
+            <p>Первый месяц в древней башне на краю Цветущих долин был вырванным у судьбы подарком. Рэй силой своей воли, а не разрушения, взрастил вокруг сад. Цветы в нём цвели невиданные, их лепестки переливались, как крылья мотыльков-вестников. Элис напевала на кухне старые песенки Теплиса, и этот звук был для него слаще любой магии, сильнее любого гримуара. Он оттаял. Его нимб, бывший чёрным лезвием, рассекавшим реальность, превратился в лёгкую дымку, ореол спокойствия. Тени стали послушными слугами, приносящими книги и поддерживающими тяжёлые ветви. Даже голос в гримуаре затих, будто уснул, убаюканный этой ложной идиллией.</p>
+            <p>Он нашёл причину сдерживать ураган. Причину дышать. Причину быть человеком. Её имя было Элис.</p>
+            <h3>Первая трещина на лакированной поверхности</h3>
+            <p>Идиллия, как и всё хрупкое, не могла длиться вечно. Но разрушил её не случайный удар, а медленный, методичный яд.</p>
+            <p>Марта заметила неладное первой. Не в Рэе, сияющем, как никогда, — в Элис.</p>
+            <p>Сначала — мелочи. Слишком навязчивые расспросы. <span class="dialogue">«Милая, а как именно работает твоя связь с тенями? Где самый уязвимый момент? Что чувствуешь, когда теряешь контроль?»</span> — <span class="dialogue">«Просто интересуюсь своим мужем, его миром»,</span> — звучал в ответ медовый голос. Но Марта ловила в её глазах, когда та думала, что её не видят, холодный, аналитический блеск. Блеск алхимика, изучающего редкий, опасный реактив.</p>
+            <p>Потом — «прогулки». На рассвете. «Собираю особые травы для чая», «Ищу вдохновение для новой песни». Возвращалась с пустыми руками, но с едва уловимой усталостью в осанке и странным запахом — смесью дорогого благовония и окислившегося металла. Запахом чужих комнат и чужих заговоров.</p>
+            <p>Ревность в Марте вспыхнула не пожаром, а тлением. Она видела, как Рэй, тот самый Рэй с глазами пустоты, расцветает. И поливал этот цветок не её труд, не её терпение, а улыбка другой. И эта другая пахла ложью. Для Марты, чей ум был скальпелем для тайн, это стало вызовом. Любовь переплелась с подозрением, забота — с навязчивой идеей. Она должна была знать. Должна была защитить его, даже от него самого, даже если он этого не хочет.</p>
+            <p>Она начала следить.</p>
+            <h3>Тень, преследующая призрак</h3>
+            <p>Марта стала мастером невидимости. Порошки, заглушающие шаги, маскировочные чары, врождённая способность становиться частью пейзажа — всё было пущено в ход. Она выследила маршрут Элис. Та не бродила бесцельно. Она чётко шла к Руинам Говорящих Камней — месту сильной, хаотичной остаточной магии, идеальному для того, чтобы спрятать разговор от любых ушей, в том числе и от сверхчувствительного слуха лаврика.</p>
+            <p>Затаившись за обломком колонны, которая тихо стонала о прошлом, Марта увидела его.</p>
+            <p>Мужчину в плаще. Порыв ветра откинул капюшон.</p>
+            <p>Иссиня-чёрные волосы. Несколько обгоревших перьев, воткнутых с насмешливой небрежностью. Знакомая, язвительная ухмылка, от которой когда-то таяли сердца.</p>
+            <p class="important">Торин.</p>
+            <p>Всё внутри Марты оборвалось и рухнуло в ледяную бездну. Она знала. Знала всю историю. Клеймо. Изгнание. Первое, самое горькое предательство.</p>
+            <p>И теперь он стоял здесь. И Элис была в его объятиях. Это не было дружеским приветствием. Его руки скользили по её спине с похабной, владельческой уверенностью. Их поцелуй был долгим, жадным, лишённым даже тени игры. Это был поцелуй сообщников, любовников, хищников, делящих добычу.</p>
+            <p>И они говорили. Марта, задержав дыхание, ловила обрывки, прорывавшиеся сквозь шёпот руин.</p>
+            <p class="dialogue">«…он полностью расслабился. Верит каждому моему слову. Спит, как младенец, доверчивый идиот…» — голос Элис. Но какой же он был другой! Металлический, деловой, лишённый всех тех тёплых интонаций, что она использовала для Рэя.</p>
+            <p class="dialogue">«Идеально. Значит, доверит и последнее. Ключ», — голос Торина, сладкий, как сироп, и ядовитый, как цикута.</p>
+            <p class="dialogue">«Его сила… она в двух замках. Гримуар и его собственные эмоции. Сломаешь один — получишь доступ ко второму. Он сам откроет нам всё».</p>
+            <p class="dialogue">«Сентиментальный болван. Всегда таким был. Думал, что мир можно исправить добротой. Мир исправляют силой и предательством, Рэй. Спасибо, что не изменился».</p>
+            <p class="dialogue">«Моя задача — добить. Чтобы он сам всё выпустил. Чтобы его любовь превратилась в кислоту и разъела его изнутри. Чтобы он увидел, что его свет — гнилушка, кишащая червями».</p>
+            <p>Элис засмеялась. Этот смех пронзил Марту острее обсидианового клинка. В нём было торжество. Презрение. Удовольствие.</p>
+            <p class="dialogue">«Не волнуйся. Завтра. Завтра устрою сценку. Найду повод. А потом… ты появишься. И его карточный домик рухнет. И тогда… тогда его сила вырвется на свободу. Он станет монстром, которого все боятся. Чистым, неконтролируемым оружием. А мы… мы возьмём гримуар. Сила Первого Изгнанника будет нашей. Вся».</p>
+            <p class="dialogue">Торин притянул её к себе, его губы коснулись её виска. «Моя гениальная актриса. Моя прекрасная, беспощадная тварь. После этого… Теплис, Фейнвинд, весь этот жалкий мир будет ползать у наших ног. И мы растопчем его. В отместку. За всё».</p>
+            <p>Марта отползла, не чувствуя ног. В ушах стоял вой. Мир, который только что имел хоть какую-то опору, рассыпался в пыль. Это была не измена. Это была казнь. Тщательно спланированная, хладнокровная экзекуция души. Они не просто хотели использовать Рэя. Они хотели сломать его в щепки, чтобы из обломков собрать орудие, выжечь в нём всё человеческое и посмеяться над пеплом.</p>
+            <p>И она, ревнующая, слепая дура, была свидетелем подготовки к убийству.</p>
+            <h3>Бессилие с горьким привкусом яда</h3>
+            <p>Сказать ему? Кричать? Бежать и трясти его за плечи? Марта металась в своей комнате, кусая кулак до крови. Она представляла его лицо. То выражение покоя, которое появилось там так недавно. И представляла, как оно треснет, как сначала будет недоверие (<span class="dialogue">«Марта, ты сводишь счёты!»</span>), а потом — пустота. Ледяная, мертвящая пустота осознания.</p>
+            <p>Она решила действовать иначе. Помешать. Сорвать. Но как? Обвинения без доказательств — идеальная почва для её же остракизма. Элис сыграет оскорблённую невинность, и Рэй, ослеплённый, поверит ей. Нужно было поймать их с поличным. Заставить его увидеть самому.</p>
+            <p>Марта продолжила слежку, копя в душе ледяную ярость и безнадёжность. Она видела, как Элис, переступая порог башни, сбрасывала с лица маску холодной расчётливости, как по волшебству наполняя глаза той самой тёплой, лучистой нежностью для Рэя. Это было высшим пилотажем лицемерия. И каждый такой момент был для Марты ножом в сердце.</p>
+            <p>А Рэй… Рэй парил в облаках слепого, бездумного счастья. Он доверял Элис самые сокровенные тайны своей силы, свои страхи, точки напряжения. Он, как дитя, вручал ей отмычки от сейфа со своим демоном, даже не подозревая, что она готовится не выпустить его, а запереть навсегда, забрав ключ себе.</p>
+            <h3>Развязка. Спектакль в одном действии</h3>
+            <p>День выбрали солнечный, ясный, насмешливо-прекрасный.</p>
+            <p>Элис, как всегда, предложила прогулку к водопаду, к их «месту силы». Рэй согласился с улыбкой, которая сейчас резала Марту по живому. Она притворилась больной, осталась в башне, а её душа разрывалась на части от предчувствия. Оливер, чуявший беду, как животное чует грозу, бесцельно бродил по мастерской, роняя склянки и что-то бессвязно бормоча.</p>
+            <p>У водопада, под радугой из брызг, Элис начала играть. Повод — пустяк. Забытое мелкое обещание. Но тон её изменился мгновенно. Стал острым, колючим, отточенным. Она говорила о его силе как о проказе, о нём — как о вечном инвалиде, обречённом пугать собой тех, кто рядом. О своей усталости быть «хранительницей монстра».</p>
+            <p>Рэй был ошеломлён. Он пытался найти оправдания, вспомнить слова любви, успокоить. Но маска на её лице дала трещину, и из-под неё хлынула настоящая, неприкрытая жестокость.</p>
+            <p class="dialogue">«Хватит! — выкрикнула она, и её голос звенел, как разбиваемое стекло. — Хватит строить из себя жертву! Ты — чудовище. Играющее в человека. И я устала играть вместе с тобой!»</p>
+            <p>И в этот миг из-за деревьев, как по режиссёрской выверенной команде, вышел он.</p>
+            <p>Торин. С той самой ухмылкой, что жила в кошмарах Рэя.</p>
+            <p>Время остановилось. Гул водопада отодвинулся куда-то в бесконечность. Рэй переводил взгляд с Торина на Элис и обратно. Его мозг, отточенный в боях, отказывался складывать два этих изображения в одну картину. Это был сбой. Глюк. Галлюцинация.</p>
+            <p class="dialogue">«Привет, дружище, — Торин положил руку на талию Элис. Она не отпрянула. Напротив, прижалась к нему всем телом, и на её лице расцвела улыбка — та самая, что сводила Рэя с ума, но теперь направленная на другого. — Спасибо, что присмотрел за моим самым ценным сокровищем. И за чертежи, кстати, отдельное спасибо — ушли за бешеные деньги. А она… она мой лучший проект. Самый успешный».</p>
+            <p>Каждое слово было отдельным молотом, бьющим по хрустальному дворцу его надежд. Рэй видел, как рушится всё: доверие, исцеление, будущее, сама возможность будущего. Он видел в глазах Элис не раскаяние, а ликующий, пьянящий триумф. Видел, как её прекрасные губы, которые он целовал прошлой ночью, складываются в презрительную, брезгливую гримасу.</p>
+            <p class="dialogue">«Ты и правда думал, что такое, как ты, может кто-то полюбить? — её шёпот был похож на шипение змеи. — Жалкое, сломанное существо, вечно ноющее о своей боли? Ты был ступенькой, Рэй. Инструментом. Игрушкой. Спасибо за твою наивность. Она сделала всё так… легко».</p>
+            <p>Мир под ногами Рэя не просто ушёл. Он взорвался в абсолютной, беззвучной пустоте. Он не чувствовал земли, не слышал своего сердца. Внутри что-то рухнуло с оглушительным грохотом тишины, и на смену пришла вакуумная, звонкая пустота. Предвестник конца.</p>
+            <p>Его остекленевший взгляд блуждал между ними. Он уже не видел людей. Он видел воплощение всей лжи мира, всей несправедливости, всей той грязи, что ему годами пытались скормить вместо хлеба. Отец. Город. Клеймо. Изгнание. Борьба за искупление… И этот финал. Не героическая смерть в бою, не тихий уход. Эта пошлая, грязная сценка у водопада, где его душу вывернули наизнанку, плюнули в неё и растоптали каблуком.</p>
+            <p>И из этой пустоты выползло не чувство. Состояние. Безразличие. Ко всему, кроме одной, кристальной цели: чтобы эта боль прекратилась. Навсегда. Чтобы больше ничего не могло причинить боль.</p>
+            <p>Машинально, рефлекторно, почти не думая, он поднял руку в сторону башни. Единственная мысль, промелькнувшая в ледяном океане сознания: Они. Не. Должны. Видеть.</p>
+            <p>Над башней, где метались Марта и Оливер, вспыхнул Абсолют.</p>
+            <p>Это был не барьер. Это была инверсия реальности. Сфера совершенной изоляции, сплетённая из чистой воли, абсолютного отчаяния и неограниченной силы. Внутри неё не было света, звука, времени, магии. Было только идеальное, вечное безмолвие. Самый надёжный склеп. Последний подарок тем, кто ещё что-то значил. Единственный акт милосердия, на который он ещё был способен.</p>
+            <p>А потом он отпустил всё остальное.</p>
+            <h3>Явление Эха</h3>
+            <p>Пространство вокруг него затрещало, пошло чёрными паутинами трещин. Воздух испарился. Звук умер. Деревья, вода, скалы, Торин и Элис — всё растворилось, уступив место серой, безликой мгле, где не было ничего.</p>
+            <p>Кроме него.</p>
+            <p>И Этого.</p>
+            <p>Огромного, бесформенного, сотканного из праха звёзд, шепота забытых истин и древнего, всепоглощающего безумия. Аранис. Не бог, не демон — эхо. Отпечаток души в гримуаре. Призрак Первого Изгнанника, пробуждённый тотальным крушением своего наследника.</p>
+            <p>У Этого не было глаз, но Рэй чувствовал на себе Взгляд. Взгляд, который не видел, а впитывал. Впитывал боль, отчаяние, превращая их в суть своего существования.</p>
+            <p>И Голос. Звучавший не снаружи, а изнутри черепа, скрежеща по костям, сплетённый из гула разорванных небес и треска горящих фолиантов.</p>
+            <p class="important">«СМОТРИ. СМОТРИ НА НИХ, НАСЛЕДНИК. НА ПЛОД ТВОЕЙ СЛЕПОЙ ВЕРЫ».</p>
+            <p>В мгле, как на экране, проступили фигуры. Торин и Элис не видели Этого. Они видели только Рэя, замершего в ступоре, и думали, что победили. Торин что-то говорил ей на ухо, и она смеялась. Тем смехом, что был когда-то музыкой для Рэя.</p>
+            <p class="important">«ТЫ ХОТЕЛ ЗАЩИЩАТЬ. ИСЦЕЛЯТЬ. ЛЮБИТЬ. ТЫ ВОЗВЁЛ ХРАМ ИЗ САХАРА НА КРАЮ ВУЛКАНА. И ОНИ… ОНИ ПРОСТО ЛИЗНУЛИ ЕГО, И ОН РАСТЁКСЯ ГРЯЗНОЙ ЛУЖЕЙ».</p>
+            <p>Каждое слово было иглой, вонзаемой в открытый нерв. Это не было насилием. Это было констатацией. Констатацией его глупости. Его слабости. Его непоправимой ошибки под названием «надежда».</p>
+            <p class="important">«ТВОИ ЧУВСТВА… ДА, ОНИ БЫЛИ ТВОЕЙ СИЛОЙ. ОГНЁМ, СПОСОБНЫМ СПАЛИТЬ ГАЛАКТИКИ. НО СЕГОДНЯ ОНИ ПОКАЗАЛИ СВОЮ ИСТИННУЮ ПРИРОДУ. ОНИ — ТВОИ ОКОВЫ. ТВОЯ АХИЛЛЕСОВА ПЯТА. ИЗ-ЗА НИХ ТЫ БЫЛ СЛЕП. ИЗ-ЗА НИХ ТЫ СТАЛ МАРИОНЕТКОЙ В РУКАХ ЭТОЙ… ТВАРИ».</p>
+            <p>Образ Элис в мгле приблизился, заполнив всё. Аранис заставлял его разглядеть каждую деталь.</p>
+            <p class="important">«ОНА ПРИТВОРЯЛАСЬ КАЖДУЮ СЕКУНДУ. КАЖДЫЙ ВЗДОХ БЫЛ РАСЧЁТОМ. КАЖДОЕ «ЛЮБЛЮ» — ЛОВУШКОЙ. ОНА ЛЕЖАЛА РЯДОМ И МЕЧТАЛА О ТОМ, КАК ТЫ ЗАКРИЧИШЬ, КОГДА УЗНАЕШЬ. ЭТО ЕЁ ТРИУМФ. ЕЁ ИСКУССТВО. А ТЫ… ТЫ БЫЛ ЕЁ СЦЕНОЙ. ЕЁ ЗРИТЕЛЕМ. ЕЁ ЖЕРТВЕННЫМ ЯГНЁНКОМ».</p>
+            <p>Пустота внутри Рэя наполнилась. Не чувствами — чувства сгорели дотла. Наполнилась эхом. Эхом боли. Эхом доверия. Эхом любви. И это эхо, множась в зеркалах отчаяния, росло, давило, превращалось в чудовищное, вселенское давление, готовое разорвать ткань бытия.</p>
+            <p class="important">«ТАК ДАЙ ЖЕ ИМ ВОЛЮ, НАСЛЕДНИК! — голос Араниса взметнулся, заполняя собой всё. — НЕ ТОМИ ИХ В ГРУДИ, КАК УМИРАЮЩИХ ПТИЦ! ВЫПУСТИ! ПУСТЬ ТВОЯ БОЛЬ, ТВОЁ ОТЧАЯНИЕ, ТВОЯ ОСКОРБЛЁННАЯ, ОПЛЁВАННАЯ ЛЮБОВЬ СТАНУТ ТВОИМ КЛИНКОМ! СТАНУТ ПЛАМЕНЕМ, КОТОРЫЙ ВЫЖЖЕТ ЭТУ ЛОЖЬ ДО ОСНОВАНИЯ! ПОСМОТРИ НА НИХ! И РАЗРУШЬ!»</p>
+            <p>И Рэй посмотрел.</p>
+            <p>Он увидел не Торина и Элис. Он увидел Теплис, отворачивающий спину. Холодные глаза отца, видевшие в нём инструмент. Чёрное клеймо на двери. Насмешки, страх, леденящее одиночество. Все годы, когда его доброту коверкали в уродство, а боль называли слабостью. И венцом всему — её улыбку. Ту самую, что была спасением. Ту самую, что оказалась ядом, приготовленным с дьявольским тщанием.</p>
+            <p>В его груди что-то дрогнуло. Зашевелилось. Последний оплот.</p>
+            <p class="important">Неправда.</p>
+            <p>Слово возникло само, крошечный щит из одного слога.</p>
+            <p class="important">Неправда.</p>
+            <p>Он сжал веки, пытаясь сдавить, раздавить картину. Если не видеть — значит, этого нет.</p>
+            <p class="important">Неправданеправда.</p>
+            <p>Губы зашевелились беззвучно, повторяя мантру. Каждый её смех в памяти — фальшивый. Каждое прикосновение — ледяное.</p>
+            <p class="important">Неправданеправданеправда.</p>
+            <p>Темп ускорялся. Слово сливалось в один сплошной, панический звук. Голову будто стянули обручем. Боль, тупая и нарастающая, давила на виски.</p>
+            <p class="important">Неправданеправданеправданеправда.</p>
+            <p>Он задышал чаще, воздух обжигал лёгкие. Это кошмар. Сейчас проснётся. Рядом будет она, тёплая и настоящая.</p>
+            <p class="important">Неправданеправданеправданеправданеправда.</p>
+            <p>Слёзы. Горячие, предательские. Они текли сами, смешиваясь с шёпотом. Каждая капля — плевок в его же наивность. Он видел её глаза — те самые, что смотрели на него с нежностью, — и как они сейчас смотрели на Торина с тем же выражением. Это был крах. Крах не мира вокруг, а мира внутри. Вселенной, которую он построил на песке её слов.</p>
+            <p class="important">Неправданеправданеправданеправданеправданеправданеправданеправданеправданеправданеправданеправда.</p>
+            <p>Слово превратилось в сплошной, бешеный визг в сознании, в биение пульса, в стук крови в висках. Это была агония психики, цепляющейся за последнюю соломинку перед падением в пропасть. Но соломинка лопнула.</p>
+            <p>Наступила Точка.</p>
+            <p>Тихая. Абсолютная. Момент, когда внутренний визг стих, слёзы высохли, а пустота поглотила последние всплески отрицания. Больше нечего было отрицать. Правда была перед ним, уродливая и окончательная.</p>
+            <p>В его груди что-то порвалось. Не сердце. Нечто глубже, важнее. Последняя внутренняя плотина. Ограничитель, установленный не магией, а его собственной, хрупкой, глупой человечностью.</p>
+            <p>Она лопнула.</p>
+            <p>Сначала не было ничего. Только тишина после точки. Тишина конца.</p>
+            <p>А потом…</p>
+            <p class="important">РЁВ.</p>
+            <p>Это не был звук из горла. Это был звук разрывающейся души, треск ломающейся вселенной, крик самой Пустоты, обретший голос. Он шёл из каждой частицы пространства вокруг, из ткани реальности, корчащейся в муках под тяжестью его агонии.</p>
+            <p>И вместе с рёвом высвободилась Сила.</p>
+            <p>Не взрыв, не удар. Явление. Реальность в радиусе мили перестала подчиняться законам. Земля обратилась в чёрный пепел, который не падал, а висел в воздухе, сплетаясь в безумные, богохульные узоры. Небо почернело и разорвалось алыми ранами, из которых сочился не свет, а тьма. Воздух загустел до состояния сиропа, наполнившись смрадом озона, пепла и сладковато-медным запахом пролитой душевной крови.</p>
+            <p>Торин и Элис, наконец осознавшие, что разбудили не того зверя, попытались бежать. Но их ноги приросли к расплавленному, теперь уже живому камню. Вся их магия, хитрость, расчёт испарились, встретив абсолютное, безумное излучение чистого, концентрированного страдания.</p>
+            <p>Рэй не смотрел на них. Он смотрел сквозь них, в никуда. Его глаза были чёрными, как та бездна, что поглотила его изнутри. И в глубине этих чёрных озёр мерцали отражения кровавых разрывов на небе.</p>
+            <p>Аранис смеялся. Тихим, сытым, довольным смешком эха.</p>
+            <p class="important">«ДА… ТАК… ТАК, НАСЛЕДНИК. ТЕПЕРЬ ТЫ ВИДИШЬ. ТЕПЕРЬ ТЫ СВОБОДЕН».</p>
+            <p>Свободен от надежды. Свободен от доверия. Свободен от любви.</p>
+            <p>Свободен стать тем, в кого мир всегда в него верил. Тем, кого боялся. Концом.</p>
+            <p>Последнее, что успело запечатлеть сознание Торина и Элис, прежде чем его стёр вихрь не-бытия, — это как Рэй медленно, со скрипом перемалываемых основ мироздания, поднял голову к рваному небу. И с его губ, беззвучно, сорвалось всего одно слово. Приговор. Имя нового мира. Его кредо.</p>
+            <p class="important">«Довольно».</p>
+            <p>И тьма сомкнулась. Не ночная тьма. Та, что старше света и тише конца. Та, что ждала своего часа в гримуаре, в его крови, в сломанном сердце Первого Изгнанника.</p>
+            <p>Наследник принял наследство.</p>
+            <p>А мир, балансировавший на краю, сорвался в пропасть, увлекаемый за собой криком его разорванной души.</p>
+        `
+    },
+    {
+        number: "Глава последняя",
+        title: "Пепел, который не остывает",
+        content: `
+            <h3>1. Тишина</h3>
+            <p>Она наступила не сразу.</p>
+            <p>Сначала был только звук. Нет, даже не звук — его отсутствие. Такая абсолютная, ватная тишина, когда перестаешь слышать даже собственное сердце. Будто мир выключили. Вырвали из розетки, и он замер, не успев даже дернуться в последний раз.</p>
+            <p>Рэй стоял.</p>
+            <p>Он не помнил, как оказался здесь. Ноги держали его, но он их не чувствовал — будто не было ног, будто он парил в сантиметре от земли, и только инерция удерживала тело в вертикальном положении. Воздух — если это можно было назвать воздухом — застыл в лёгких ледяным комом, не желая ни выходить, ни согреваться.</p>
+            <p>Последнее, что отпечаталось в памяти — её глаза. Элис.</p>
+            <p>В тот самый последний миг, когда она смотрела на него не с ненавистью, не со страхом, а с чем-то... удивлением? Будто до последнего не верила, что он способен. Будто держала в голове красивый план, идеальный расчёт, выверенный до миллиметра — и вдруг реальность пошла трещинами, и из трещин полезло такое, что никаким расчётом не предусмотришь. Такое, что ломает все формулы, все стратегии, все "идеальные" схемы.</p>
+            <p>Её глаза расширились — красивые глаза, те самые, в которые он смотрел каждую ночь перед сном, ища в них ответ на вопрос "неужели мне наконец-то повезло?" — и в этом расширении не было места для лжи. Только чистый, животный ужас существа, которое вдруг осознало, что переиграло само себя.</p>
+            <p>Торин даже крикнуть не успел.</p>
+            <p>Рэй помнил, как повернулся к нему — или не он, а та, другая часть? — и как на лице Торина, вечно насмешливом, вечно уверенном, мелькнуло что-то детское. Беспомощное. Торин открыл рот — может, хотел сказать что-то привычное, язвительное, прикрыться словами, как щитом — но слова умерли в горле раньше, чем успели родиться.</p>
+            <p>Потому что слова против того, что поднялось из глубины Рэя, были бесполезны.</p>
+            <p>Сначала побелели глаза. Не выцвели — именно побелели, как переспелые фрукты, покрывающиеся налётом плесени. Потом кожа — она пошла рябью, мелкой дрожью, будто под ней кишели тысячи червей, и каждый тянул в свою сторону. Торин дёрнулся — раз, другой — и вдруг его тело перестало быть телом. Оно стало пеплом. Серым, сухим, лёгким пеплом, который ещё секунду держал форму человека, а потом рассыпался под собственной тяжестью.</p>
+            <p>Ветер — сухой, горячий ветер, поднявшийся из ниоткуда — подхватил этот пепел и развеял его по выжженной земле. Там, где только что стоял Торин, не осталось ничего. Ни пятна крови, ни клочка одежды — будто его никогда и не существовало. Будто все эти годы дружбы, предательства, ненависти — всё было сном, который рассыпался с первыми лучами солнца.</p>
+            <p>А Элис...</p>
+            <p>Рэй зажмурился. В голове пульсировало: не думать, не вспоминать, не смотреть. Но память — хуже предателя. Она показала всё. Каждую деталь. В высоком разрешении, с максимальным приближением, с той жестокой отчётливостью, которая бывает только в кошмарах.</p>
+            <p>Как её красивое лицо — то самое, которое он гладил кончиками пальцев всего несколько часов назад, изучая каждую линию, каждую родинку, каждую ямочку на щеке, появляющуюся при улыбке — пошло рябью. Как кожа на лбу натянулась, истончилась, стала прозрачной — и под ней, вместо крови и мышц, заклубилась тьма.</p>
+            <p>Как она открыла рот. Может, хотела что-то сказать. Оправдаться. Объяснить. Придумать новую ложь — такую красивую, что он бы поверил снова, потому что он всегда верил, потому что ему так хотелось верить, что этот проклятый мир может быть добрым к нему хоть раз. Но вместо звука из её горла вырвался только хрип. Сухой, скрипучий звук, похожий на шорох осенних листьев под ногами.</p>
+            <p>Её пальцы.</p>
+            <p>Боже, её пальцы.</p>
+            <p>Те самые пальцы, что перебирали его волосы по ночам, когда он не мог уснуть от кошмаров. Те пальцы, что гладили его по щеке, когда он рассказывал ей о Теплисе, об отце, о Лире. Те пальцы, что сжимали его ладонь во время их дурацкой, импровизированной свадьбы, где Оливер чуть не спалил им всем брови.</p>
+            <p>Они скрючились. Сначала медленно, будто их сводила судорога. Потом быстрее, быстрее, ломаясь в суставах под неестественными углами. Кожа на них почернела — не загорела, не обуглилась, а именно почернела, как старая фотография, которую поднесли к огню. И осыпалась.</p>
+            <p>Пальцы осыпались прахом раньше, чем всё остальное тело.</p>
+            <p>Будто ложь горела быстрее плоти. Будто всё фальшивое в ней — каждое "люблю", каждое "верю", каждое "ты мой" — вспыхнуло и сгорело, оставив только то, что было настоящим. А настоящего, как выяснилось, было не так много.</p>
+            <p class="dialogue">— Рэй.</p>
+            <p>Голос донёсся откуда-то издалека. Из другого мира. Из той жизни, где ещё есть звуки и люди, которые зовут по имени. Из той реальности, которую он, кажется, только что уничтожил.</p>
+            <p class="dialogue">— Рэй!</p>
+            <p>Он открыл глаза.</p>
+            <p>И пожалел об этом.</p>
+            <p>Потому что перед ним была Марта.</p>
+            <h3>2. Живые</h3>
+            <p>Она стояла в трёх метрах, но казалось — на другом конце вселенной. Её лицо... господи, её лицо было испачкано сажей так густо, что сквозь неё почти не просвечивала кожа. На правой скуле — глубокий порез, рваный, с неровными краями, будто её задело осколком камня. По краям раны кровь уже запеклась тёмной коркой, но в центре всё ещё сочилась — медленно, лениво, смешиваясь с потом и грязью, стекая по щеке и капая на воротник.</p>
+            <p>Красно-чёрные волосы, которыми она так гордилась, которые вечно заплетала в сложные косы, перевивая лентами и шнурками, сейчас торчали в разные стороны дикими патлами. Слипшиеся от пота, от пепла, от чего-то ещё — может, от крови, не её, чужой. Один особенно длинный локон прилип ко лбу, закрывая левый глаз, и Марта даже не пыталась его убрать — будто не замечала.</p>
+            <p>Она тяжело дышала.</p>
+            <p>Рэй слышал это дыхание — прерывистое, со свистом, с каким-то булькающим призвуком в груди. Бежала. Сквозь строй. Сквозь страх. Сквозь собственную боль. Бежала к нему, хотя любой здравомыслящий человек побежал бы в противоположную сторону.</p>
+            <p>И она смотрела на него так...</p>
+            <p>Рэй не мог расшифровать этот взгляд. Слишком много всего намешано. Страх — да, определённо, его нельзя было не заметить. Зрачки расширены так, что радужка почти не видна, зрачки человека, который только что видел смерть вблизи и чудом избежал её. Облегчение — странно, дико, но тоже присутствовало, читалось в том, как она выдохнула, увидев его лицо, как плечи её на миллиметр опустились, расслабляясь. Боль — откуда? Она же не ранена, порез на щеке — ерунда, царапина. Но боль была, Рэй видел её в том, как Марта прикусила нижнюю губу, как мелко дрожали уголки её рта.</p>
+            <p>И что-то ещё.</p>
+            <p>Что-то глубоко внутри, в самой темноте её глаз — таких карих, что в сумерках они казались чёрными. Что-то, от чего Рэю захотелось отвернуться. Потому что это было слишком личное. Слишком интимное. Слишком... настоящее.</p>
+            <p class="dialogue">— Ты... — Марта сглотнула. Рэй видел, как двинулся её кадык — тонкая шея, выступающие ключицы, впалая грудь под изодранной курткой. — Ты вернулся.</p>
+            <p>Рэй моргнул.</p>
+            <p>Вернулся?</p>
+            <p>А он уходил?</p>
+            <p>И тут же в голову ударило — воспоминание. Нет, даже не воспоминание, а просто ощущение. Другое тело. Другие мысли. Другая, ледяная пустота внутри, из которой он смотрел на Торина и Элис и не чувствовал ровным счётом ничего. Абсолютный ноль. Вакуум. Та пустота, что бывает только в космосе — между звёздами, где нет воздуха, нет звука, нет тепла, только бесконечный холод и равнодушие материи.</p>
+            <p>И в этом вакууме было так спокойно. Так правильно. Так легко.</p>
+            <p>Потому что боль осталась где-то за стеклом. Отгороженная, изолированная, безопасная. А он просто наблюдал, как мир избавляется от тех, кто эту боль причинил. Наблюдал и чувствовал — впервые за долгое время — что справедливость существует. Что она жестокая, страшная, необратимая — но есть.</p>
+            <p>Это был он?</p>
+            <p>Или не он?</p>
+            <p class="dialogue">— Рэй, посмотри на меня.</p>
+            <p>Марта сделала шаг вперёд. Её сапог — левый, с оторванным почти наполовину носком — ступил на чёрную, спекшуюся землю, и под ним противно хрустнуло. Что-то стеклянное? Кости? Рэй не хотел знать.</p>
+            <p>Потом ещё шаг.</p>
+            <p>И ещё.</p>
+            <p>Её рука протянулась к нему — медленно, очень медленно, будто она приближалась к дикому зверю, который может и укусить, и лизнуть, и неизвестно, что страшнее. Пальцы — грязные, с обломанными ногтями, в мелких порезах и ссадинах — зависли в сантиметре от его плеча.</p>
+            <p>Не коснулись.</p>
+            <p>Замерли.</p>
+            <p class="dialogue">— Просто посмотри на меня, — голос её дрожал, срывался, но она держалась. — Скажи что-нибудь. Всё что угодно. Просто скажи.</p>
+            <p>Рэй открыл рот.</p>
+            <p>И ничего не сказал.</p>
+            <p>Потому что говорить было нечем. Слова кончились. Все до одного. Иссякли, как вода в пересохшем колодце. Осталась только эта проклятая тишина в ушах и картинка перед глазами — Марта, грязная, живая, тянет к нему руку и боится дотронуться.</p>
+            <p>Боится его.</p>
+            <p>Имеет полное право бояться.</p>
+            <p class="dialogue">— Оливер, — вдруг выдохнула Марта, резко обернувшись. Голос её стал жёстче, требовательнее. — Оливер, иди сюда. Быстро.</p>
+            <p>Рэй проследил за её взглядом.</p>
+            <p>Оливер сидел на земле метрах в десяти. Его рыжие волосы, вечно торчащие в разные стороны, создавая вокруг головы эффект одуванчика, пережившего ядерный взрыв, сейчас прилипли ко лбу мокрыми прядями, закрывая половину лица. Он сжимал в руках какую-то склянку — единственную уцелевшую, судя по тому, с какой отчаянной нежностью он прижимал её к груди. Склянка была цела — чудо, настоящее чудо, учитывая, что творилось вокруг полчаса назад.</p>
+            <p>И смотрел Оливер на Рэя так, будто перед ним не друг, с которым они вместе взрывали лабораторию, травили друг друга экспериментальными зельями и чуть не сгорели заживо в лесу, спасаясь от охотников. Будто перед ним мина с выдернутой чекой. Будто любое неосторожное движение — и рванёт так, что мало не покажется.</p>
+            <p class="dialogue">— Я... — голос Оливера сел, сорвался на сип, и он прокашлялся, закашлялся, вытирая рот тыльной стороной ладони. — Я тут посижу, ладно? Тут хорошо. Тут тепло. Почему-то очень тепло, хотя только что был адский холод, вы не заметили? Я заметил. Я вообще много чего замечаю. Например, что у меня штаны мокрые. Не спрашивайте почему. Сам не знаю. Может, от росы. Хотя какая роса, когда тут всё выжжено к чёртовой матери? А может, это я от страха... ну, вы понимаете. Не важно. В общем, я тут посижу. Вы не стесняйтесь, общайтесь. Я мешать не буду.</p>
+            <p>Он говорил слишком быстро. Слишком громко. Слишком — как заводная игрушка, у которой сломался регулятор. Слова сыпались из него градом, бессмысленные, хаотичные, цепляющиеся друг за друга, спотыкающиеся и падающие.</p>
+            <p>И Рэй вдруг с пугающей ясностью понял: Оливер в шоке.</p>
+            <p>Он прикрывается своей дурацкой болтовнёй, потому что иначе развалится. Потому что только что видел то, что никто не должен видеть. То, от чего у нормального человека крыша едет окончательно и бесповоротно. То, что сам Рэй видел только глазами той, другой личности — и то не до конца, урывками, как в тумане.</p>
+            <p class="dialogue">— Оливер, — Марта сказала это тихо, но так, что он сразу заткнулся. Голос у неё вообще был удивительный — мягкий, но с железной серединкой. Таким голосом останавливают взбесившихся лошадей и успокаивают плачущих детей. — Иди сюда. Пожалуйста.</p>
+            <p>Оливер встал.</p>
+            <p>Ноги его не слушались. Это было видно невооружённым глазом — как он переступает, будто заново учится ходить, как колени подкашиваются на каждом шагу. Он сделал шаг — споткнулся о собственный рюкзак, который валялся рядом, выругался длинно и витиевато, с таким смаком, что даже Рэй, который думал, что его уже ничем не удивить, мысленно отметил пару новых оборотов.</p>
+            <p>Потом ещё шаг.</p>
+            <p>Ещё.</p>
+            <p>И вот они стояли втроём.</p>
+            <p>Марта — чуть впереди, правая рука чуть отведена назад, будто она готова в любой момент прикрыть Оливера собой. Оливер — сзади, чуть левее, склянка в руке, взгляд бегающий, губы шевелятся беззвучно — кажется, он читал молитву. Или перечислял ингредиенты какого-нибудь зелья. Или просто считал до ста, чтобы не сойти с ума.</p>
+            <p>И Рэй.</p>
+            <p>Рэй, который стоял напротив них и не знал, имеет ли право называться человеком.</p>
+            <p class="important">— Я их убил.</p>
+            <p>Он сказал это вслух. Просто чтобы услышать, как это звучит. Голос прозвучал так, будто он не пользовался им лет сто — хрипло, сипло, чужим тембром. Будто говорил не он, а кто-то другой, спрятанный глубоко внутри.</p>
+            <p>Звучало так же, как и в голове — глухо и бесповоротно. Как приговор, который сам себе вынес.</p>
+            <p class="important">— Я их убил, — повторил он. — Торина. Элис. Я стёр их. Просто... взял и стёр. Даже не руками. Мыслью. Желанием.</p>
+            <p>Он посмотрел на свои ладони.</p>
+            <p>Обычные руки. Такие же, как всегда. Чуть обветренные, в мелких шрамах от работы в мастерской, с мозолями на пальцах от инструментов. На правой, у указательного пальца, свежий ожог — вчера, кажется, или позавчера, он чинил какую-то лампу для Марты и зазевался.</p>
+            <p>Ни крови. Ни пепла. Ничего.</p>
+            <p>Чистые руки.</p>
+            <p class="dialogue">— Ты защищался, — быстро сказал Оливер, делая шаг вперёд — и тут же замирая, будто испугавшись собственной смелости. — Они же... они хотели... ну, они вообще тебя развести хотели, как последнего лоха. Всё подстроили. С самого начала. И Торин этот... и Элис... я слышал, как она с ним говорила, я случайно услышал, они не знали, что я рядом, а я травы собирал, там, за скалой, и... в общем, технически это самооборона. Ну, или что-то вроде того. Знаешь, есть такой юридический термин — необходимая оборона. Вот это оно и было. С процентами.</p>
+            <p class="dialogue">— Оливер, заткнись, — перебила Марта. Без злости. Устало.</p>
+            <p>Она всё ещё смотрела на Рэя. И взгляд её изменился.</p>
+            <p>Страх не ушёл — он был, никуда не делся, прятался где-то в уголках глаз, в том, как она то и дело облизывала пересохшие губы. Но к нему примешалось что-то другое.</p>
+            <p>Не жалость — Рэй ненавидел жалость, она была хуже пощёчины. Не понимание — какое тут понимание, когда он сам себя не понимал.</p>
+            <p>Что-то иное.</p>
+            <p>Что-то, от чего у Рэя заныло в груди. Там, где, казалось, уже ничего не может болеть, потому что всё болит и зажило неправильно, криво, шишками и шрамами.</p>
+            <p class="dialogue">— Ты не убивал их, — тихо сказала Марта. — Не так, как ты думаешь.</p>
+            <p>Рэй посмотрел на неё непонимающе. Брови сошлись к переносице, образовав глубокую морщину — ту самую, которая появлялась, когда он пытался понять сложный механизм или разобраться в чьих-то запутанных чувствах.</p>
+            <p class="dialogue">— Что?</p>
+            <p class="dialogue">— Ты... — Марта запнулась. Подбирала слова. Рэй видел, как она перебирает их в голове, отбрасывает один вариант за другим, ищет тот единственный, который сможет вместить всё. — Это была не ты. Не тот Рэй, который чинил лампы. И не тот, который учился контролировать свою силу. Это было... что-то другое. Оно вышло из тебя, когда ты сломался. Я видела. Я стояла там, за скалой, я всё видела. Оно смотрело твоими глазами, двигалось твоим телом, но это был не ты.</p>
+            <p>Рэй молчал.</p>
+            <p>Марта шагнула ближе. Ещё на шаг. Теперь между ними было меньше метра.</p>
+            <p class="dialogue">— Ты помнишь? — спросила она. — Что ты чувствовал в тот момент? Не когда всё закончилось, а когда началось. Когда ты понял, что она... что они...</p>
+            <p>Она не договорила. Не нужно было.</p>
+            <p>И Рэй задумался.</p>
+            <p>Помнил ли он?</p>
+            <p>Да.</p>
+            <p>Он помнил всё.</p>
+            <p>Как стоял у водопада. Как слушал её слова — такие же красивые, как всегда, но теперь в них не было тепла, только лёд, только расчёт, только та холодная жестокость, с которой хирург разрезает живую плоть, не чувствуя ничего, кроме профессионального интереса.</p>
+            <p>Как внутри что-то лопнуло.</p>
+            <p>Та самая плотина, которую он строил годами. Кирпичик за кирпичиком. Каждое утро, просыпаясь, он клал новый кирпич: "Я справлюсь. Я не сорвусь. Я не такой, как они думают". Каждый вечер, засыпая, проверял кладку: "Держится. Пока держится. Ещё один день".</p>
+            <p>А она — Элис, его жена, его надежда, его будущее — стояла и улыбалась, глядя на эту плотину, и говорила Торину: "Смотри, как трещит. Ещё чуть-чуть — и рухнет".</p>
+            <p>И плотина рухнула.</p>
+            <p>В эту трещину хлынуло что-то чужое и одновременно своё. Глубинное. Древнее. То, что всегда жило в нём, но спало, свернувшись калачиком в самом тёмном углу души. То, что он чувствовал иногда по ночам, когда боль становилась невыносимой — тогда оно шевелилось, ворочалось, но не просыпалось.</p>
+            <p>Сейчас оно проснулось.</p>
+            <p>Подняло голову, потянулось, довольно урча: <span class="important">«Наконец-то. Наконец-то ты меня позвал. Наконец-то перестал прятаться за этой жалкой человечностью. Наконец-то стал собой».</span></p>
+            <p>И ему, Рэю, стало вдруг так легко.</p>
+            <p>Так свободно.</p>
+            <p>Так правильно.</p>
+            <p>Потому что ответственность за выбор перестала быть его. Он просто отдал контроль и наблюдал. Как зритель в театре. Как читатель, переворачивающий страницы книги, где главный герой — кто-то другой, и не надо решать за него, не надо мучиться, не надо бояться ошибиться.</p>
+            <p>Наблюдал, как его руки делают то, о чём он всегда мечтал в самых тёмных, самых запретных углах сознания.</p>
+            <p>Как наказывают.</p>
+            <p>Как мстят.</p>
+            <p>Как стирают в пыль тех, кто посмел сделать ему больно.</p>
+            <p>Это было прекрасно.</p>
+            <p>И это было чудовищно.</p>
+            <p class="important">— Я помню, — сказал Рэй. Голос его звучал глухо, как из бочки. — И мне... мне было хорошо.</p>
+            <p>Он поднял глаза на Марту. В них не было защиты. Только голая, неприкрытая правда — такая, от которой обычно отворачиваются, потому что смотреть на неё невыносимо.</p>
+            <p class="important">— Мне было хорошо, когда они умирали. Я чувствовал... силу. Свободу. Я думал: «Так им и надо. Получите. За всё получите». А теперь... теперь я не знаю, что с этим делать. Потому что это тоже я. Не монстр, не демон, не чужой. Я. Часть меня. Которая хочет убивать, когда ей больно. Которая наслаждается этим. Которая...</p>
+            <p>Он замолчал. Горло перехватило спазмом.</p>
+            <p>Тишина повисла в воздухе густая, как смола. Казалось, её можно резать ножом — и куски будут падать на землю с мягким, влажным звуком.</p>
+            <p>Оливер открыл рот, закрыл, снова открыл. На этот раз даже он не нашёлся, что сказать. Он переводил взгляд с Рэя на Марту и обратно, и в глазах его плескалось что-то среднее между ужасом и состраданием.</p>
+            <p>А Марта...</p>
+            <p>Марта сделала то, чего Рэй совсем не ожидал.</p>
+            <p>Она шагнула вперёд и обняла его.</p>
+            <h3>3. Тепло</h3>
+            <p>Просто обняла.</p>
+            <p>Прижалась всем телом — худым, дрожащим, таким живым. Уткнулась лицом ему в грудь, прямо в то место, где под курткой бешено колотилось сердце. И стояла так, дрожа.</p>
+            <p>Её руки сжимали его куртку с такой силой, что костяшки побелели. Рэй чувствовал, как пальцы впиваются в ткань, как ногти — обломанные, неровные — царапают материал, пытаясь ухватиться покрепче, будто она боялась, что он исчезнет, растворится, превратится в ту, другую личность, если хоть на секунду ослабит хватку.</p>
+            <p>Она дрожала.</p>
+            <p>Всё её тело дрожало — мелкой, частой дрожью, которую невозможно контролировать. Дрожала спина под курткой, дрожали плечи, дрожали руки. И сквозь эту дрожь пробивалось тепло — живое, человеческое тепло, которого Рэй, казалось, не чувствовал уже целую вечность.</p>
+            <p>От неё пахло дымом. Потом. Кровью. И ещё чем-то неуловимым, чем пахнут только живые люди — тем сложным, тёплым запахом, который не поддаётся описанию, но без которого мир становится пустым и мёртвым.</p>
+            <p>Рэй замер.</p>
+            <p>Его руки висели вдоль тела, не зная, что делать. Они были тяжёлыми, чужими, непослушными. Он не мог обнять её в ответ. Не имел права. Этими руками он только что убил двух человек. Пусть даже они заслужили. Пусть даже та, другая часть его, наслаждалась процессом. Пусть даже Марта сама пришла к нему.</p>
+            <p>Он не имел права.</p>
+            <p>Но она не отпускала.</p>
+            <p class="dialogue">— Ты идиот, — прошептала Марта куда-то в район его ключицы. Голос её был приглушён тканью куртки, но Рэй расслышал каждое слово. — Ты просто невероятный, гениальный, безнадёжный идиот.</p>
+            <p>Рэй моргнул.</p>
+            <p class="dialogue">— Что?</p>
+            <p>Она отстранилась ровно настолько, чтобы посмотреть ему в глаза. Её лицо было мокрым от слёз — они текли по щекам, смешиваясь с грязью и кровью, оставляя светлые дорожки на тёмной коже. Нос распух и покраснел. Губы дрожали.</p>
+            <p>Но голос звучал твёрдо.</p>
+            <p class="dialogue">— Ты думаешь, мы не знали? — сказала она. — Думаешь, мы с Оливером не понимали, с кем идём?</p>
+            <p>Она шмыгнула носом и вытерла слёзы рукавом, размазывая грязь по лицу ещё сильнее. Теперь она стала похожа на нашкодившего ребёнка, который полдня провозился в луже.</p>
+            <p class="dialogue">— Думаешь, я не видела ту тьму в тебе? — продолжила она. — С первого дня видела. Когда ты стоял на скале, и твой нимб резал реальность, а вокруг валялись трупы охотников. Я всё видела.</p>
+            <p>Она перевела дыхание. Грудь её ходила ходуном, но она не останавливалась.</p>
+            <p class="dialogue">— И что? Ты думаешь, я пошла с тобой, потому что ты был «хорошим»? Нет. Я пошла с тобой, потому что ты был настоящим. Ты не притворялся. Ты боролся. Каждый день. Каждую минуту. Ты падал в эту тьму, а потом выползал обратно. И я видела, как тебе больно. И я...</p>
+            <p>Её голос дрогнул. Сорвался.</p>
+            <p class="important">— Я не могла оставить тебя одного в этой боли. Понимаешь? Не могла.</p>
+            <p>Рэй смотрел на неё и не верил.</p>
+            <p>Не верил, что такое бывает. Что кто-то может видеть всё дерьмо, которое в нём есть — всю эту тьму, всю эту грязь, всю эту способность к насилию, которая только что проявилась во всей красе — и не отвернуться. Не убежать. Не закричать "чудовище".</p>
+            <p>Стоять и смотреть. И плакать. И обнимать.</p>
+            <p class="dialogue">— Но я только что... — начал он.</p>
+            <p class="dialogue">— Ты только что сломался, — перебила Марта. Жёстко, почти зло. — Ты не выдержал. Столько лет тебя предавали, унижали, использовали — и ты терпел. Ты терпел, когда отец в тебе только рабочие руки видел. Ты терпел, когда Торин тебя подставил. Ты терпел, когда весь город от тебя отвернулся. Ты терпел, когда охотники за тобой гонялись. Ты терпел, когда мир говорил тебе, что ты монстр. Ты терпел.</p>
+            <p>Она ткнула его пальцем в грудь. Больно, в самое солнечное сплетение.</p>
+            <p class="important">— А сегодня они перешли черту. Сегодня они убили не твоё тело, а твою душу. И та часть тебя, которая устала терпеть, взяла верх. Это не делает тебя монстром. Это делает тебя живым.</p>
+            <p class="dialogue">— Она права, — вдруг подал голос Оливер.</p>
+            <p>Он стоял чуть поодаль, но теперь подошёл ближе. Осторожно, как к раненому зверю, но подошёл. Его лицо было бледным — бледнее обычного, а это, учитывая его обычную бледность, было достижением. Но в глазах уже загорался знакомый безумный огонёк — тот самый, с которым он лез в самые опасные эксперименты.</p>
+            <p class="dialogue">— Слушай, я, конечно, специалист по взрывам, а не по душам. — Оливер говорил медленно, тщательно подбирая слова — что само по себе было чудом. — Но я своими глазами видел, как ты... ну, это. Как ты их... в общем, ты понял. И знаешь что? Я офигел. Я сидел там и думал: «Всё, приехали, сейчас он и нас за компанию». Потому что эта штука, что из тебя вылезла — она не разбирала, кто свой, кто чужой. Она просто жрала всё подряд.</p>
+            <p>Он сглотнул. Кадык дёрнулся.</p>
+            <p class="dialogue">— Но ты... ты нас не тронул. Даже когда та хрень внутри тебя орала и рвалась наружу, даже когда ты сам себя не контролировал — ты нас не тронул. Почему?</p>
+            <p>Рэй задумался.</p>
+            <p>Почему?</p>
+            <p>Ведь та, другая часть, не знала пощады. Она уничтожила Торина и Элис даже не задумываясь. С наслаждением. Смакуя каждое мгновение. Почему же Марта и Оливер остались живы?</p>
+            <p>Он попытался вспомнить тот момент. Когда внутри бушевало пламя, когда реальность плавилась и текла, когда хотелось только одного — чтобы боль прекратилась, чтобы никто и никогда больше не мог сделать ему больно.</p>
+            <p>И сквозь этот ад, сквозь рёв разрушения, сквозь крик собственной души — он слышал их.</p>
+            <p>Марта. Её голос. Она звала его по имени. Не "чудовище", не "монстр", не "тварь". По имени. Рэй.</p>
+            <p>Оливер. Его дурацкая болтовня, бессмысленная, нелепая, но такая родная. Он что-то кричал про взрывы, про зелья, про то, что "мы ещё повоюем, парни, не сегодня".</p>
+            <p>Они не бросили его. Не убежали. Не спрятались.</p>
+            <p>Они были рядом.</p>
+            <p>И даже та, ледяная пустота внутри, которая хотела только уничтожать — она не могла их тронуть. Потому что они были частью того немногого, что Рэй хотел сохранить. Даже в самом аду.</p>
+            <p class="important">— Я... не знаю, — честно сказал он. — Наверное, потому что вы... вы мои.</p>
+            <p class="dialogue">— А я знаю, — Оливер ткнул его пальцем в грудь — точно так же, как только что Марта. — Потому что ты — это ты. Даже когда внутри тебя сидит демон, готовый всех порвать, ты всё равно остаёшься тем придурком, который чинил лампы бесплатно. Потому что ты не можешь иначе. Это у тебя в крови. Это твоя настоящая суперсила — быть идиотом, который не сдаётся.</p>
+            <p>Рэй смотрел на них двоих.</p>
+            <p>На Марту — перепачканную, уставшую, с мокрым от слёз лицом, но с таким упрямым выражением, будто она готова была спорить до хрипоты, до потери пульса, до конца света.</p>
+            <p>На Оливера — бледного, трясущегося, но уже улыбающегося своей кривой, безумной улыбкой, от которой обычно хотелось спрятаться подальше, а сейчас — прижаться и не отпускать.</p>
+            <p>Они стояли рядом.</p>
+            <p>С ним.</p>
+            <p>Несмотря на всё.</p>
+            <p>И вдруг что-то в груди сжалось.</p>
+            <p>Не больно. Наоборот — так, будто отогреваться начало. Маленький такой островок тепла посреди ледяной пустыни, в которую превратилась его душа. Сначала крошечный — с горошину. Потом больше — с монету. Потом ещё — с ладонь.</p>
+            <p>Тепло разливалось медленно, осторожно, будто боялось, что его спугнут. Но оно росло.</p>
+            <p class="dialogue">— Вы... — голос его сорвался. Пришлось прокашляться, чтобы продолжить. — Вы правда не боитесь?</p>
+            <p class="dialogue">— Боимся, — честно ответила Марта. — Ещё как боимся. Я, например, сейчас трясусь так, что зубы стучат. Слышишь?</p>
+            <p>Она приоткрыла рот, и Рэй действительно услышал — мелкую, частую дробь зубов.</p>
+            <p class="dialogue">— Но это не важно.</p>
+            <p class="dialogue">— А что важно?</p>
+            <p class="dialogue">— То, что ты есть.</p>
+            <p>Она посмотрела ему прямо в глаза. В самую глубину. Туда, где ещё недавно бушевала тьма, а теперь робко разгорался огонёк.</p>
+            <p class="important">— Ты. Не тот, кого из тебя делали. Не тот, кого ты боишься стать. А тот, кто прямо сейчас стоит здесь и пытается понять, как жить дальше. Это важно.</p>
+            <p>Рэй молчал долго.</p>
+            <p>Так долго, что Оливер начал переминаться с ноги на ногу, а Марта уже открыла рот, чтобы что-то сказать, может, спросить, не случилось ли чего.</p>
+            <p>Но Рэй заговорил первым.</p>
+            <p class="important">— Я не знаю, что теперь будет.</p>
+            <p>Голос его звучал тихо, но ровно. Без истерики. Без надрыва. Просто констатация факта.</p>
+            <p class="important">— Я не знаю, как на это посмотрят в мире. Если узнают — убьют. Или попытаются. Гильдия охотников просто так не отстанет. А если не узнают... если мы спрячемся, будем жить в этих чёртовых шахтах, как крысы... я сам себя сожру изнутри. Потому что я...</p>
+            <p>Он запнулся. Сглотнул.</p>
+            <p class="important">— Я убил их. Не в бою. Не защищаясь. Просто стёр. И часть меня до сих пор считает, что это правильно. Что они получили по заслугам. И я не знаю, как с этим жить. Как смотреть на себя в зеркало и не видеть там... его. Ту тварь, которая вылезла из меня.</p>
+            <p>Он перевёл взгляд на Марту.</p>
+            <p class="important">— Как с этим жить?</p>
+            <p>Марта взяла его руку в свои.</p>
+            <p>Её ладони были холодными — замёрзла, пока тряслась, пока боялась, пока бежала к нему. Но прикосновение было тёплым. Или это его руки были ледяными, и её тепло передавалось ему? Рэй не знал. Не мог разобрать, где кончается одно и начинается другое.</p>
+            <p>Она переплела свои пальцы с его. Сжала. Крепко.</p>
+            <p class="dialogue">— Не знаю, — сказала она. — Не знаю. Я вообще ничего не знаю. Я не психолог, не мудрец, не святая. Я просто девчонка, которая влюбилась в монстра и теперь пытается понять, как сделать так, чтобы ему не было больно.</p>
+            <p>Она говорила это и смотрела на их сплетённые пальцы. Не на него. Будто боялась, что если поднимет глаза, то не сможет договорить.</p>
+            <p class="important">— Но я знаю одно. Мы будем жить вместе. Ты, я, Оливер. Может, ещё кто-то потом, если повезёт. Мы будем искать ответ. Будем ошибаться. Будем снова падать в эту тьму. Но мы будем рядом. И каждый раз, когда ты будешь падать, мы будем протягивать тебе руку. А ты — нам. Так и выживем. По кусочкам. По дням. По секундам.</p>
+            <p>Она подняла глаза.</p>
+            <p class="dialogue">— Хорошо?</p>
+            <p>Рэй смотрел на их сплетённые пальцы.</p>
+            <p>Её рука в его руке.</p>
+            <p>Та самая рука, которой он убивал.</p>
+            <p>Та самая рука, которая ещё час назад была инструментом смерти.</p>
+            <p>И она всё равно держала его. Не брезговала. Не боялась. Не отворачивалась.</p>
+            <p class="important">— Хорошо, — прошептал он.</p>
+            <h3>4. Тот, кто ждал</h3>
+            <p>В этот момент что-то изменилось.</p>
+            <p>Не вокруг — внутри. В самой глубине сознания Рэя что-то шевельнулось. Что-то, что он принял было за ту, другую личность, за ту ледяную пустоту, что недавно ruleла бал, — но нет. Это было иначе.</p>
+            <p>Тихо.</p>
+            <p>Спокойно.</p>
+            <p>Почти устало.</p>
+            <p class="important">— Интересно, — раздался голос.</p>
+            <p>Не в ушах — прямо в голове. Такой отстранённый, будто говоривший смотрел на них откуда-то с огромного расстояния. С высокой горы. С другой планеты. Из другого времени.</p>
+            <p class="important">— Очень интересно.</p>
+            <p>Рэй замер всем телом. Напрягся так, что Марта, державшая его за руку, сразу почувствовала.</p>
+            <p class="dialogue">— Что? — спросила она, вглядываясь в его лицо. — Что случилось?</p>
+            <p class="dialogue">— Ты слышишь? — Рэй посмотрел на неё.</p>
+            <p class="dialogue">— Ничего. А что?</p>
+            <p class="dialogue">— Голос, — сказал Рэй. — В голове. Кто-то говорит.</p>
+            <p>Марта нахмурилась. Оливер, услышав это, подошёл ближе, на всякий случай сжимая в руке склянку с какой-то дрянью.</p>
+            <p class="dialogue">— Кто? — спросила Марта. — Та штука, что вылезла из тебя?</p>
+            <p class="dialogue">— Не знаю, — честно ответил Рэй. — Не похоже. По-другому как-то.</p>
+            <p class="important">— Я — это я, — снова зазвучал голос. Спокойный, ровный, без эмоций. — И я — это ты. И не ты одновременно. Сложно объяснить. Но не бойся. Я не враг.</p>
+            <p class="dialogue">— Тогда кто? — мысленно спросил Рэй, не зная, как обращаться к тому, кто, видимо, поселился у него в голове.</p>
+            <p>Пауза.</p>
+            <p>Долгая.</p>
+            <p>Тягучая.</p>
+            <p>Такая, что Рэй успел подумать: а не показалось ли? Может, это просто эхо, отголосок той бури, что только что бушевала?</p>
+            <p>Но голос вернулся.</p>
+            <p class="important">— Меня звали Аранис, — сказал он. — Когда-то очень давно. Теперь я просто... тень. Отголосок. Часть гримуара, которая слишком долго ждала и слишком хорошо запомнила, каково это — быть человеком.</p>
+            <p>Рэй вздрогнул.</p>
+            <p>Аранис.</p>
+            <p>Первый Изгнанник.</p>
+            <p>Тот, чья сила текла в его жилах. Тот, чьи слова он читал в гримуаре. Тот, чья тень преследовала его с самого начала.</p>
+            <p class="dialogue">— Ты... ты был во мне всё это время?</p>
+            <p class="important">— Я спал, — поправил голос. — Твоя боль разбудила меня. Но не та боль, что ты чувствуешь сейчас. Та, что ты чувствовал, когда они... когда она...</p>
+            <p>Голос запнулся.</p>
+            <p>Впервые за этот короткий разговор в нём проскользнуло что-то человеческое. Какая-то старая, застарелая боль, которую не вытравить ни временем, ни тысячелетиями забвения.</p>
+            <p class="important">— Я знаю это чувство, — продолжил Аранис. — Потерю. Предательство. Когда весь мир сжимается до одной точки, и в этой точке — только желание сделать так, чтобы больше никогда не было больно. Чтобы никто и никогда не мог причинить тебе эту боль снова. Я тоже через это прошёл.</p>
+            <p>Рэй молчал. Слушал.</p>
+            <p class="dialogue">— И что ты сделал? — спросил он наконец.</p>
+            <p class="important">— Сжёг всё, — просто ответил голос. — Дотла. Всех, кто был рядом. Всех, кто мог бы стать близким. Всех, кто хоть как-то был связан с той болью. Сжёг города. Сжёг страны. Сжёг целый континент. Думал, станет легче.</p>
+            <p>Пауза.</p>
+            <p class="important">— Не стало.</p>
+            <p>Рэй представил это. Огромную фигуру на фоне горящего неба. Пепел, падающий с неба, как снег. Трупы, трупы, трупы — на сколько хватает глаз. И в центре всего этого — человек, который хотел только одного: чтобы ему не было больно.</p>
+            <p class="important">— Ты сделал по-другому, — продолжил Аранис. — Ты убил их — да. Но остановился. Не дал мне вырваться до конца. А ведь я уже почти... почти был свободен. Ещё немного — и я бы вышел наружу. Насовсем. И тогда...</p>
+            <p class="dialogue">— И тогда я бы стал тобой, — закончил Рэй.</p>
+            <p class="important">— Да.</p>
+            <p>Тишина.</p>
+            <p>Рэй посмотрел на Марту. На Оливера. На их лица — испуганные, уставшие, но родные. Самые родные во всём мире.</p>
+            <p class="dialogue">— Почему ты остановился? — спросил Аранис. В его голосе впервые появилось что-то похожее на искреннее любопытство. — Я чувствовал твою боль. Она была такой же, как моя. Такой же острой. Такой же всепоглощающей. Ты хотел уничтожить всё так же сильно, как хотел я. Почему ты остановился?</p>
+            <p>Рэй долго думал над ответом.</p>
+            <p>Почему?</p>
+            <p>Потому что он вспомнил, как пахнут волосы Марты после дождя. Потому что в голове всплыло лицо Оливера, когда тот в очередной раз взорвал лабораторию и стоял счастливый, перепачканный сажей. Потому что где-то глубоко внутри, под всеми слоями боли и отчаяния, ещё теплилась та глупая, наивная вера в то, что мир может быть другим.</p>
+            <p class="important">— Потому что они рядом, — ответил он. — Потому что, даже когда я провалился в эту тьму, я чувствовал их. Где-то далеко, но чувствовал. Они не бросили меня. Не убежали. Они были здесь. И я не мог... не мог их тоже...</p>
+            <p class="important">— Понимаю, — голос Араниса звучал устало. Бесконечно устало. Так, будто он нёс эту усталость тысячу лет и ни разу не останавливался передохнуть. — У меня таких не было. В моё время — не было. Или я просто не заметил. Не разглядел за своей болью. Слишком был занят собственным страданием. А теперь поздно.</p>
+            <p class="dialogue">— Ты жалеешь?</p>
+            <p>Долгая пауза.</p>
+            <p>Такая долгая, что Рэй уже решил — не ответит.</p>
+            <p>Но голос вернулся.</p>
+            <p class="important">— Не знаю. Я уже тысячу лет ничего не чувствую, кроме холода. Но глядя на тебя... кажется, я начинаю вспоминать, каково это — хотеть жить.</p>
+            <p>Голос затих.</p>
+            <p>Не исчез — Рэй чувствовал его присутствие где-то на границе сознания, тёплое (или уже не холодное?) пятно — но замолчал. Затаился. Давая пространство.</p>
+            <p class="dialogue">— Рэй? — позвала Марта. — Ты где? Ты так долго молчал, мы уже испугались.</p>
+            <p class="dialogue">— Здесь, — ответил он. — Я здесь.</p>
+            <p>И это была правда.</p>
+            <p>Впервые за долгое, долгое время — чистая, без примесей правда.</p>
+            <h3>5. Утро</h3>
+            <p>Они сидели на выжженной земле до рассвета.</p>
+            <p>Оливер уснул первым.</p>
+            <p>Просто вырубился — посреди фразы, на полуслове. Он что-то рассказывал — кажется, про то, как однажды его зелье случайно оживило дохлую крысу, и крыса потом неделю бегала за ним, требуя "продолжения банкета", — а потом глаза его закрылись сами собой, голова мотнулась в сторону, и он завалился на бок, прямо на свой драгоценный рюкзак.</p>
+            <p>Рэй поймал его в последний момент, удерживая от падения лицом в грязь. Осторожно уложил поудобнее, подложил под голову свернутую куртку.</p>
+            <p>Оливер даже не проснулся. Только вздохнул во сне — глубоко, по-детски — и засопел, подёргивая во сне плечами. Наверное, догонял во сне тех, от кого убегал наяву.</p>
+            <p>Марта боролась со сном долго.</p>
+            <p>Сидела, обхватив колени руками, и смотрела в темноту. Рэй видел, как её глаза слипаются, как голова то и дело клонится вниз, как она встряхивается, заставляя себя не спать.</p>
+            <p class="dialogue">— Ложись, — сказал он тихо. — Я посторожу.</p>
+            <p class="dialogue">— Не хочу, — ответила она. — А вдруг ты... ну...</p>
+            <p class="dialogue">— Не уйду, — пообещал он. — Никуда.</p>
+            <p>Она посмотрела на него долгим, изучающим взглядом. Проверила, не врёт ли. Не нашла лжи.</p>
+            <p class="dialogue">— Ладно, — сказала она. — Но если что — буди.</p>
+            <p class="dialogue">— Разбужу.</p>
+            <p>Она придвинулась ближе. Положила голову ему на плечо. Рэй чувствовал, как её волосы щекочут ему шею — жёсткие, спутанные, пахнущие дымом.</p>
+            <p class="dialogue">— Рэй, — прошептала она.</p>
+            <p class="dialogue">— М?</p>
+            <p class="dialogue">— Ты только... ты только не умирай, ладно? Я без тебя не справлюсь.</p>
+            <p>Он не ответил. Только прижался щекой к её макушке.</p>
+            <p>Через минуту она уже спала — провалилась в сон так же внезапно, как Оливер, только без храпа. Рэй слышал её ровное дыхание, чувствовал, как вздымается и опускается её грудь в такт.</p>
+            <p>И сидел, глядя в темноту.</p>
+            <p>Не спал.</p>
+            <p>Ждал рассвета.</p>
+            <h3>6. Рассвет</h3>
+            <p>Небо светлело медленно.</p>
+            <p>Сначала просто перестало быть чёрным — стало тёмно-серым, потом серым, потом бледно-серым, с едва заметными розовыми прожилками на востоке. Туман поднялся над землёй — странный, белый, непохожий на обычный. Он стелился низко, почти у самой земли, и в нём тонули очертания камней и редких уцелевших деревьев.</p>
+            <p>Рэй смотрел, как просыпается мир.</p>
+            <p>Тот самый мир, который он едва не уничтожил.</p>
+            <p>Земля под ногами — там, где недавно корчилась в агонии, плавясь и закипая, — теперь остыла. Покрылась мелкой, едва заметной испариной, будто плакала. Или потела. Или просто пыталась прийти в себя после всего, что случилось.</p>
+            <p>Воздух пах мокрой золой и ещё чем-то свежим, утренним — может, росой, может, просто надеждой.</p>
+            <p>Где-то далеко закричала птица.</p>
+            <p>Одна. Потом вторая.</p>
+            <p>Жизнь возвращалась.</p>
+            <p>Рэй посмотрел на спящую Марту. На её размазанную тушь — теперь она размазалась ещё сильнее, превратив лицо в абстрактную картину. На грязь на щеке, въевшуюся в кожу так, что не оттрёшь без мыла и мочалки. На припухшие от слёз губы, чуть приоткрытые во сне.</p>
+            <p>Такая обычная.</p>
+            <p>Такая живая.</p>
+            <p>Такая тёплая.</p>
+            <p>И вдруг он понял, что всё это время искал не там.</p>
+            <p>Он думал, что тепло — это когда тебя любят. Когда ты кому-то нужен. Когда рядом есть кто-то, кто смотрит на тебя и не видит монстра, не боится, не отворачивается.</p>
+            <p>А оказалось — теплее просто сидеть вот так.</p>
+            <p>Когда ты сам решаешь, кому позволить быть рядом. Когда ты выбираешь — не из страха одиночества, не потому что больше не к кому пойти, а потому что этот человек — он твой. Несмотря ни на что. Вопреки всему. Просто потому что он есть.</p>
+            <p>Марта вздохнула во сне и плотнее прижалась к его плечу. Её рука, лежавшая у него на колене, чуть сжалась.</p>
+            <p>Рэй осторожно, боясь разбудить, коснулся губами её макушки.</p>
+            <p>Волосы пахли дымом и ещё чем-то неуловимо-знакомым. Тем запахом, который он уже не мог отделить от неё.</p>
+            <p class="important">— Я разберусь, — прошептал он так тихо, что даже сам едва услышал. — Я обещаю.</p>
+            <p>Где-то в глубине сознания Аранис усмехнулся.</p>
+            <p>Беззлобно.</p>
+            <p>Почти тепло.</p>
+            <p class="important">— Посмотрим, мальчик, — прошептал он. — Посмотрим.</p>
+            <h3>7. Вместо эпилога</h3>
+            <p>Они ушли до того, как солнце поднялось достаточно высоко, чтобы осветить место, где ещё вчера стоял водопад.</p>
+            <p>Теперь там была только воронка.</p>
+            <p>Ровная, идеально круглая, глубиной метров двадцать, не меньше. Края её оплыли, оплавились, превратившись в стекловидную массу, которая поблёскивала в лучах восходящего солнца. На дне блестела вода — непонятно откуда взявшаяся, чистая, зеркальная. Может, грунтовые воды вышли. Может, дождь ночью прошёл, которого они не заметили. Может, просто чудо.</p>
+            <p>Если присмотреться, в воде отражалось небо.</p>
+            <p>Не сегодняшнее, серое и хмурое, а какое-то другое — ярко-синее, с редкими пушистыми облаками. Будто там, внизу, был другой мир. Или тот же, но очищенный.</p>
+            <p>Оливер, проснувшись, долго смотрел в эту воду. Потом пожал плечами и сказал:</p>
+            <p class="dialogue">— Ну хоть не воняет.</p>
+            <p>Марта закатила глаза.</p>
+            <p>Рэй просто кивнул и пошёл дальше.</p>
+            <p>Они шли на север.</p>
+            <p>Там, по слухам, были старые шахты, заброшенные ещё во времена первых поселенцев. Говорили, в них можно спрятаться так, что никто не найдёт — ни гильдия, ни охотники, ни случайные путники. Воздух там пропитан ртутью и безумием, говорили. Но для таких, как они, это, наверное, лучшее место.</p>
+            <p>Перед тем как скрыться за первым холмом, Рэй обернулся.</p>
+            <p>Воронка осталась далеко позади. Маленькая чёрная точка на фоне выжженной равнины.</p>
+            <p class="important">— Когда-нибудь, — тихо сказал он. — Когда-нибудь я вернусь. И объясню себе, что там случилось.</p>
+            <p class="dialogue">— Ты и сейчас можешь объяснить, — сказала Марта, останавливаясь рядом. — Просто не хочешь.</p>
+            <p class="important">— Не хочу, — согласился Рэй. — Пока не хочу.</p>
+            <p>Она кивнула, будто именно этого ответа и ждала.</p>
+            <p class="dialogue">— Тогда пошли. Оливер опять чуть в яму не упал.</p>
+            <p>Рэй усмехнулся.</p>
+            <p>Коротко. Почти неслышно. Уголками губ.</p>
+            <p>Но усмехнулся.</p>
+            <p>И пошёл за ними.</p>
+            <p>Внутри, в самой глубине, Аранис молчал.</p>
+            <p>Но Рэй чувствовал — не осуждает. Не торопит. Ждёт.</p>
+            <p>И это почему-то не пугало.</p>
+            <p class="important">Конец первой книги</p>
+        `
+    },
+    {
+        number: "Эпилог",
+        title: "Тот, кто ждет",
+        content: `
+            <p>Тишина.</p>
+            <p>Воронка. Вода на дне — всё так же зеркальна, всё так же чиста. В ней отражается небо — другое, яркое, почти настоящее.</p>
+            <p>И вдруг — рябь.</p>
+            <p>По воде проходит дрожь, мелкая, едва заметная. Будто что-то коснулось её изнутри. Рябь расходится кругами, медленно, лениво, и в центре одного из них, на самом дне, загорается свет.</p>
+            <p>Красный.</p>
+            <p>Тусклый.</p>
+            <p>Одинокий.</p>
+            <p>Он пульсирует — раз, два, три — в ритме, похожем на сердцебиение. Медленном. Тяжёлом.</p>
+            <p>А потом — шёпот.</p>
+            <p>Тысячи голосов, слитых в один. Таких тихих, что их можно принять за ветер. Таких древних, что кажется, они звучат здесь с начала времён.</p>
+            <p class="important">"Он не знает. Ещё не знает. Но скоро..."</p>
+            <p class="important">"Скоро он поймёт, что пробудил не только себя."</p>
+            <p class="important">"Скоро он узнает, что такое настоящая тьма."</p>
+            <p class="important">"Скоро..."</p>
+        `
+    }
+];
+
+
+        // ========== ПЕРЕМЕННЫЕ ==========
+        let currentChapter = parseInt(localStorage.getItem('oasis_currentChapter')) || 0;
+        let baseFontSize = 18;
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            createEmbers();
+            buildTOC();
+            loadChapter(currentChapter);
+            loadFontSize();
+            updateNavButtons();
+        });
+
+        // Создание искр
+        function createEmbers() {
+            const container = document.getElementById('embers');
+            const emberCount = 30;
+
+            for (let i = 0; i < emberCount; i++) {
+                const ember = document.createElement('div');
+                ember.className = 'ember';
+                ember.style.left = Math.random() * 100 + '%';
+                ember.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                ember.style.animationDelay = (Math.random() * 10) + 's';
+                ember.style.width = (Math.random() * 3 + 2) + 'px';
+                ember.style.height = ember.style.width;
+                
+                const colors = ['#ff6b35', '#ff4500', '#ffd700', '#c41e3a'];
+                ember.style.background = colors[Math.floor(Math.random() * colors.length)];
+                ember.style.boxShadow = `0 0 10px ${ember.style.background}, 0 0 20px ${ember.style.background}`;
+                
+                container.appendChild(ember);
+            }
+        }
+
+        // Построение оглавления
+        function buildTOC() {
+            const tocList = document.getElementById('tocList');
+            const totalChapters = document.getElementById('totalChapters');
+            totalChapters.textContent = chapters.length;
+
+            chapters.forEach((chapter, index) => {
+                const li = document.createElement('li');
+                li.className = 'toc-item';
+                li.innerHTML = `
+                    <span class="toc-chapter">${chapter.number}</span>
+                    <div class="toc-chapter-title">${chapter.title}</div>
+                `;
+                li.onclick = () => goToChapter(index);
+                tocList.appendChild(li);
+            });
+        }
+
+        // Загрузка главы
+        function loadChapter(index) {
+            if (index < 0 || index >= chapters.length) return;
+
+            currentChapter = index;
+            const chapter = chapters[index];
+            
+            // Обновление контента
+            const bookContent = document.getElementById('bookContent');
+            bookContent.innerHTML = `
+                <div class="chapter-number">${chapter.number}</div>
+                <h1 class="chapter-title">${chapter.title}</h1>
+                <div class="chapter-content">${chapter.content}</div>
+            `;
+
+            // Обновление прогресса
+            const progress = ((index + 1) / chapters.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Обновление номера главы
+            document.getElementById('currentChapterNum').textContent = index + 1;
+
+            // Сохранение прогресса
+            localStorage.setItem('oasis_currentChapter', index);
+
+            // Обновление оглавления
+            updateTOCActive();
+            updateNavButtons();
+
+            // Прокрутка вверх
+            window.scrollTo(0, 0);
+        }
+
+        // Обновление активного элемента в оглавлении
+        function updateTOCActive() {
+            const items = document.querySelectorAll('.toc-item');
+            items.forEach((item, index) => {
+                item.classList.toggle('active', index === currentChapter);
+            });
+        }
+
+        // Обновление кнопок навигации
+        function updateNavButtons() {
+            document.getElementById('prevBtn').disabled = currentChapter === 0;
+            document.getElementById('nextBtn').disabled = currentChapter === chapters.length - 1;
+        }
+
+        // Переключение оглавления
+        function toggleTOC() {
+            document.getElementById('tocOverlay').classList.toggle('active');
+            document.getElementById('tocPanel').classList.toggle('active');
+        }
+
+        // Переход к главе
+        function goToChapter(index) {
+            loadChapter(index);
+            toggleTOC();
+        }
+
+        // Предыдущая глава
+        function prevChapter() {
+            if (currentChapter > 0) {
+                loadChapter(currentChapter - 1);
+            }
+        }
+
+        // Следующая глава
+        function nextChapter() {
+            if (currentChapter < chapters.length - 1) {
+                loadChapter(currentChapter + 1);
+            }
+        }
+
+        // Изменение размера шрифта
+        function changeFontSize(delta) {
+            baseFontSize = Math.max(14, Math.min(28, baseFontSize + delta));
+            document.body.style.setProperty('--font-size', baseFontSize + 'px');
+            localStorage.setItem('oasis_fontSize', baseFontSize);
+        }
+
+        // Сброс размера шрифта
+        function resetFontSize() {
+            baseFontSize = 18;
+            document.body.style.setProperty('--font-size', baseFontSize + 'px');
+            localStorage.setItem('oasis_fontSize', baseFontSize);
+            showNotification('Размер шрифта сброшен');
+        }
+
+        // Загрузка размера шрифта
+        function loadFontSize() {
+            const savedSize = localStorage.getItem('oasis_fontSize');
+            if (savedSize) {
+                baseFontSize = parseInt(savedSize);
+                document.body.style.setProperty('--font-size', baseFontSize + 'px');
+            }
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        // Горячие клавиши
+        document.addEventListener('keydown', function(e) {
+            // Не обрабатывать при фокусе на инпутах
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            switch(e.key) {
+                case 'ArrowLeft':
+                    prevChapter();
+                    break;
+                case 'ArrowRight':
+                    nextChapter();
+                    break;
+                case 'Escape':
+                    if (document.getElementById('tocPanel').classList.contains('active')) {
+                        toggleTOC();
+                    }
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

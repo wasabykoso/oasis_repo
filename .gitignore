@@ -1,0 +1,29 @@
+# Системные файлы
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Временные файлы
+*.tmp
+*.temp
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# OS
+desktop.ini
+
+# Архивы (если будут)
+*.zip
+*.rar
+*.7z
+
+# Бинарные файлы (если нужно)
+# *.png
+# *.jpg
+# *.gif
